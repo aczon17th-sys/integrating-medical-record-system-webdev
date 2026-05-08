@@ -9,8 +9,8 @@ const {
 const authorizeRoles = require("../middleware/roleMiddleware");
 
 router.get("/", getAppointments);
-router.post("/", authorizeRoles("admin", "staff"), addAppointment);
-router.put("/:id", authorizeRoles("admin", "doctor", "staff"), updateAppointment);
+router.post("/", authorizeRoles("admin", "staff", "patient"), addAppointment);
+router.put("/:id", authorizeRoles("admin", "doctor", "staff", "patient"), updateAppointment);
 router.delete("/:id", authorizeRoles("admin"), deleteAppointment);
 
 module.exports = router;

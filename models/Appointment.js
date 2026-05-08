@@ -2,6 +2,11 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
 const Appointment = sequelize.define("Appointment", {
+  patientId: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
+
   patientName: {
     type: DataTypes.STRING,
     allowNull: false

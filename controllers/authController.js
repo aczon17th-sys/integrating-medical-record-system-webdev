@@ -4,7 +4,13 @@ const User = require("../models/User");
 
 const createToken = (user) => {
   return jwt.sign(
-    { id: user.id, username: user.username, email: user.email, role: user.role },
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      patientId: user.patientId
+    },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
@@ -15,6 +21,7 @@ const serializeUser = (user) => ({
   username: user.username,
   email: user.email,
   role: user.role,
+  patientId: user.patientId,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt
 });

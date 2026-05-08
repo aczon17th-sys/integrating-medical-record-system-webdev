@@ -7,6 +7,14 @@ const Patient = sequelize.define("Patient", {
     allowNull: false
   },
 
+  email: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    validate: {
+      isEmail: true
+    }
+  },
+
   validIdType: {
     type: DataTypes.STRING,
     allowNull: true

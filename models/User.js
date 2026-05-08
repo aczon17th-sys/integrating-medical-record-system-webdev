@@ -4,14 +4,12 @@ const sequelize = require("../config/db");
 const User = sequelize.define("User", {
   username: {
     type: DataTypes.STRING,
-    allowNull: false,
-    unique: true
+    allowNull: false
   },
 
   email: {
     type: DataTypes.STRING,
     allowNull: true,
-    unique: true,
     validate: {
       isEmail: true
     }
@@ -23,7 +21,7 @@ const User = sequelize.define("User", {
   },
 
   role: {
-    type: DataTypes.ENUM("admin", "doctor", "staff"),
+    type: DataTypes.ENUM("admin", "doctor", "staff", "patient"),
     allowNull: false,
     defaultValue: "staff"
   },
@@ -35,6 +33,11 @@ const User = sequelize.define("User", {
 
   staffId: {
     type: DataTypes.STRING,
+    allowNull: true
+  },
+
+  patientId: {
+    type: DataTypes.INTEGER,
     allowNull: true
   }
 });

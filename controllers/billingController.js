@@ -1,4 +1,5 @@
 const Billing = require("../models/Billing");
+const Patient = require("../models/Patient");
 
 const discountRates = {
   none: 0,
@@ -30,6 +31,7 @@ const buildBillingPayload = (body) => {
   const totalAmount = Number(Math.max(amount - discountAmount, 0).toFixed(2));
 
   return {
+    patientId: body.patientId || null,
     patientName: body.patientName,
     statementDate: body.statementDate,
     serviceDescription: body.serviceDescription,
@@ -45,9 +47,24 @@ const buildBillingPayload = (body) => {
   };
 };
 
+const resolvePatientId = async (body) => {
+  if (body.patientId) {
+    return body.patientId;
+  }
+
+  if (!body.patientName) {
+    return null;
+  }
+
+  const patient = await Patient.findOne({ where: { fullname: body.patientName } });
+  return patient ? patient.id : null;
+};
+
 exports.getBillings = async (req, res) => {
   try {
+    const where = req.user.role === "patient" ? { patientId: req.user.patientId } : {};
     const billings = await Billing.findAll({
+      where,
       order: [["createdAt", "DESC"]]
     });
 
@@ -71,7 +88,10 @@ exports.createBilling = async (req, res) => {
       return res.status(400).json({ message: benefitError });
     }
 
-    const billing = await Billing.create(buildBillingPayload(req.body));
+    const billing = await Billing.create({
+      ...buildBillingPayload(req.body),
+      patientId: await resolvePatientId(req.body)
+    });
     res.status(201).json(billing);
   } catch (error) {
     res.status(400).json({ message: "Failed to create billing statement", error: error.message });
@@ -92,7 +112,11 @@ exports.updateBilling = async (req, res) => {
       return res.status(400).json({ message: benefitError });
     }
 
-    await billing.update(buildBillingPayload({ ...billing.toJSON(), ...req.body }));
+    const nextPayload = { ...billing.toJSON(), ...req.body };
+    await billing.update({
+      ...buildBillingPayload(nextPayload),
+      patientId: await resolvePatientId(nextPayload)
+    });
     res.json(billing);
   } catch (error) {
     res.status(400).json({ message: "Failed to update billing statement", error: error.message });

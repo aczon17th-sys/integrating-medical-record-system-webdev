@@ -3,6 +3,28 @@ const Patient = require("../models/Patient");
 
 exports.getDashboard = async (req, res) => {
   try {
+    if (req.user.role === "patient") {
+      const [patient, totalAppointments, recentAppointments] = await Promise.all([
+        Patient.findByPk(req.user.patientId),
+        Appointment.count({ where: { patientId: req.user.patientId } }),
+        Appointment.findAll({
+          where: { patientId: req.user.patientId },
+          order: [["updatedAt", "DESC"]],
+          limit: 5
+        })
+      ]);
+
+      return res.json({
+        totalPatients: patient ? 1 : 0,
+        totalAppointments,
+        recentActivities: recentAppointments.map((appointment) => ({
+          type: "appointment",
+          text: `Your appointment is ${appointment.status}`,
+          date: appointment.updatedAt
+        }))
+      });
+    }
+
     const [totalPatients, totalAppointments, recentPatients, recentAppointments] =
       await Promise.all([
         Patient.count(),

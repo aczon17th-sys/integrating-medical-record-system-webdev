@@ -9,6 +9,7 @@ const serializeUser = (user) => ({
   role: user.role,
   licenseId: user.licenseId,
   staffId: user.staffId,
+  patientId: user.patientId,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt
 });
@@ -28,7 +29,7 @@ const validateRoleCredential = ({ role, licenseId, staffId }) => {
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ["id", "username", "email", "role", "licenseId", "staffId", "createdAt", "updatedAt"],
+      attributes: ["id", "username", "email", "role", "licenseId", "staffId", "patientId", "createdAt", "updatedAt"],
       order: [["id", "ASC"]]
     });
 
@@ -41,7 +42,7 @@ exports.getUsers = async (req, res) => {
 exports.createUser = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
-    const { licenseId, staffId } = req.body;
+    const { licenseId, staffId, patientId } = req.body;
 
     if (!username || !email || !password || !role) {
       return res.status(400).json({ message: "Username, email, password, and role are required" });
@@ -69,7 +70,8 @@ exports.createUser = async (req, res) => {
       password: await bcrypt.hash(password, 10),
       role,
       licenseId: role === "doctor" ? licenseId : null,
-      staffId: role === "staff" ? staffId : null
+      staffId: role === "staff" ? staffId : null,
+      patientId: role === "patient" ? patientId || null : null
     });
 
     res.status(201).json(serializeUser(user));
@@ -86,7 +88,7 @@ exports.updateUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { username, email, password, role, licenseId, staffId } = req.body;
+    const { username, email, password, role, licenseId, staffId, patientId } = req.body;
     const updates = {};
 
     if (username) {
@@ -120,6 +122,10 @@ exports.updateUser = async (req, res) => {
 
     if (staffId !== undefined || nextRole !== "staff") {
       updates.staffId = nextRole === "staff" ? staffId : null;
+    }
+
+    if (patientId !== undefined || nextRole !== "patient") {
+      updates.patientId = nextRole === "patient" ? patientId || null : null;
     }
 
     if (password) {

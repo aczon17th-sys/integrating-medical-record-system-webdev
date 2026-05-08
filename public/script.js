@@ -48,6 +48,12 @@ const applyRoleUi = () => {
   document.querySelectorAll(".staff-admin-only").forEach((element) => {
     element.hidden = !["admin", "staff"].includes(currentUser?.role);
   });
+
+  if (currentUser?.role === "patient") {
+    document.querySelectorAll('a[href="accounts.html"]').forEach((element) => {
+      element.hidden = true;
+    });
+  }
 };
 
 const setMessage = (id, text, isError = false) => {
@@ -150,6 +156,8 @@ const loadDashboard = async () => {
 
 const patientPayload = () => ({
   fullname: document.getElementById("fullname").value,
+  accountEmail: document.getElementById("accountEmail")?.value,
+  accountPassword: document.getElementById("accountPassword")?.value,
   validIdType: document.getElementById("validIdType").value,
   validIdNumber: document.getElementById("validIdNumber").value,
   identityVerified: true,
@@ -163,6 +171,29 @@ const clearPatientForm = () => {
   document.getElementById("patientId").value = "";
   document.getElementById("patientForm").reset();
   document.getElementById("patientFormTitle").textContent = "Add Patient";
+  updatePatientAccountFields();
+};
+
+const updatePatientAccountFields = () => {
+  const isCreate = !document.getElementById("patientId")?.value;
+  const canCreateAccount = ["admin", "staff"].includes(currentUser?.role);
+  const accountEmail = document.getElementById("accountEmail");
+  const accountPassword = document.getElementById("accountPassword");
+
+  if (!accountEmail || !accountPassword) {
+    return;
+  }
+
+  accountEmail.required = canCreateAccount && isCreate;
+  accountPassword.required = canCreateAccount && isCreate;
+  accountEmail.disabled = !isCreate;
+
+  if (!isCreate) {
+    accountPassword.value = "";
+    accountPassword.placeholder = "Leave blank to keep current password";
+  } else {
+    accountPassword.placeholder = "";
+  }
 };
 
 const loadPatients = async () => {
@@ -180,6 +211,7 @@ const loadPatients = async () => {
       <tr>
         <td>${escapeHtml(patient.fullname)}</td>
         <td>${escapeHtml(patient.validIdType || "")}<br><small>${escapeHtml(patient.validIdNumber || "")}</small></td>
+        <td>${escapeHtml(patient.email || "")}</td>
         <td>${escapeHtml(patient.age || "")}</td>
         <td>${escapeHtml(patient.gender || "")}</td>
         <td>${escapeHtml(patient.diagnosis || "")}</td>
@@ -196,7 +228,7 @@ const loadPatients = async () => {
         </td>
       </tr>
     `).join("")
-    : "<tr><td colspan=\"7\">No patients found.</td></tr>";
+    : "<tr><td colspan=\"8\">No patients found.</td></tr>";
 };
 
 const setupPatients = () => {
@@ -209,6 +241,14 @@ const setupPatients = () => {
   if (!["admin", "staff"].includes(currentUser?.role)) {
     form.closest(".panel").hidden = true;
   }
+
+  if (currentUser?.role === "patient") {
+    document.querySelectorAll(".patient-account-field").forEach((element) => {
+      element.hidden = true;
+    });
+  }
+
+  updatePatientAccountFields();
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -239,6 +279,8 @@ const setupPatients = () => {
       const patient = await apiRequest(`/patients/${editId}`);
       document.getElementById("patientId").value = patient.id;
       document.getElementById("fullname").value = patient.fullname || "";
+      document.getElementById("accountEmail").value = patient.email || "";
+      document.getElementById("accountPassword").value = "";
       document.getElementById("validIdType").value = patient.validIdType || "";
       document.getElementById("validIdNumber").value = patient.validIdNumber || "";
       document.getElementById("age").value = patient.age || "";
@@ -246,6 +288,7 @@ const setupPatients = () => {
       document.getElementById("diagnosis").value = patient.diagnosis || "";
       document.getElementById("medications").value = patient.medications || "";
       document.getElementById("patientFormTitle").textContent = "Edit Patient";
+      updatePatientAccountFields();
     }
 
     if (deleteId && confirm("Delete this patient?")) {
@@ -289,8 +332,12 @@ const loadAppointments = async () => {
         <td><span class="badge">${escapeHtml(appointment.status)}</span></td>
         <td>
           <div class="actions">
-            <button class="small-button" data-edit-appointment="${appointment.id}">Edit</button>
-            <button class="danger-button" data-cancel-appointment="${appointment.id}">Cancel</button>
+            ${currentUser?.role !== "patient"
+              ? `<button class="small-button" data-edit-appointment="${appointment.id}">Edit</button>`
+              : ""}
+            ${appointment.status !== "cancelled"
+              ? `<button class="danger-button" data-cancel-appointment="${appointment.id}">Cancel</button>`
+              : ""}
             ${currentUser?.role === "admin"
               ? `<button class="danger-button" data-delete-appointment="${appointment.id}">Delete</button>`
               : ""}
@@ -308,8 +355,17 @@ const setupAppointments = () => {
     return;
   }
 
-  if (!["admin", "staff"].includes(currentUser?.role)) {
+  if (!["admin", "staff", "patient"].includes(currentUser?.role)) {
     form.closest(".panel").hidden = true;
+  }
+
+  if (currentUser?.role === "patient") {
+    const patientName = document.getElementById("patientName");
+    const status = document.getElementById("status");
+    patientName.closest("label").hidden = true;
+    status.closest("label").hidden = true;
+    patientName.required = false;
+    status.required = false;
   }
 
   form.addEventListener("submit", async (event) => {
@@ -373,7 +429,8 @@ const accountPayload = () => {
     email: document.getElementById("accountEmail").value,
     role: document.getElementById("accountRole").value,
     licenseId: document.getElementById("licenseId").value,
-    staffId: document.getElementById("staffId").value
+    staffId: document.getElementById("staffId").value,
+    patientId: document.getElementById("accountPatientId").value || null
   };
   const password = document.getElementById("accountPassword").value;
 
@@ -398,15 +455,19 @@ const updateCredentialFields = () => {
   const staffField = document.getElementById("staffIdField");
   const licenseInput = document.getElementById("licenseId");
   const staffInput = document.getElementById("staffId");
+  const patientField = document.getElementById("patientIdField");
+  const patientInput = document.getElementById("accountPatientId");
 
-  if (!licenseField || !staffField) {
+  if (!licenseField || !staffField || !patientField) {
     return;
   }
 
   licenseField.hidden = role !== "doctor";
   staffField.hidden = role !== "staff";
+  patientField.hidden = role !== "patient";
   licenseInput.required = role === "doctor";
   staffInput.required = role === "staff";
+  patientInput.required = role === "patient";
 
   if (role !== "doctor") {
     licenseInput.value = "";
@@ -414,6 +475,10 @@ const updateCredentialFields = () => {
 
   if (role !== "staff") {
     staffInput.value = "";
+  }
+
+  if (role !== "patient") {
+    patientInput.value = "";
   }
 };
 
@@ -432,7 +497,7 @@ const loadAccounts = async () => {
         <td>${escapeHtml(user.username)}</td>
         <td>${escapeHtml(user.email || "")}</td>
         <td><span class="badge">${escapeHtml(user.role)}</span></td>
-        <td>${escapeHtml(user.role === "doctor" ? user.licenseId || "" : user.role === "staff" ? user.staffId || "" : "System Admin")}</td>
+        <td>${escapeHtml(user.role === "doctor" ? user.licenseId || "" : user.role === "staff" ? user.staffId || "" : user.role === "patient" ? `Patient #${user.patientId || ""}` : "System Admin")}</td>
         <td>
           <div class="actions">
             <button class="small-button" data-edit-account="${user.id}">Edit</button>
@@ -489,6 +554,7 @@ const setupAccounts = () => {
       document.getElementById("accountRole").value = user.role || "staff";
       document.getElementById("licenseId").value = user.licenseId || "";
       document.getElementById("staffId").value = user.staffId || "";
+      document.getElementById("accountPatientId").value = user.patientId || "";
       document.getElementById("accountPassword").value = "";
       document.getElementById("accountPassword").required = false;
       document.getElementById("accountFormTitle").textContent = "Edit Account";

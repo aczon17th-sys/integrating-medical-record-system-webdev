@@ -40,10 +40,12 @@
             <option value="admin">Admin</option>
             <option value="doctor">Doctor</option>
             <option value="staff">Staff</option>
+            <option value="patient">Patient</option>
           </select>
         </label>
         <label id="licenseIdField">Doctor License ID<input id="licenseId"></label>
         <label id="staffIdField">Staff ID<input id="staffId"></label>
+        <label id="patientIdField">Linked Patient Record ID<input id="accountPatientId" type="number" min="1"></label>
         <div class="actions span-2">
           <button class="button" type="submit">Save Account</button>
           <button class="secondary-button" type="button" id="resetAccountForm">Clear</button>
