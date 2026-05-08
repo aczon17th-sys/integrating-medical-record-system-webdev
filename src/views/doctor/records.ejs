@@ -1,0 +1,59 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Doctor</p>
+    <h1>Findings and Prescriptions</h1>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Add Patient Result</h2>
+  <form class="form-grid" action="/doctor/records" method="post">
+    <label>Appointment
+      <select name="appointment_id" required>
+        <% appointments.forEach(item => { %>
+          <option value="<%= item.id %>">
+            <%= item.patient_first %> <%= item.patient_last %> - <%= item.scheduled_at.toLocaleString() %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+    <label class="span-2">Findings<textarea name="findings" required></textarea></label>
+    <label class="span-2">Prescription<textarea name="prescription" required></textarea></label>
+    <button class="button" type="submit">Save findings</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>My Assigned Appointments</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Patient</th><th>Patient ID</th><th>Schedule</th><th>Status</th></tr></thead>
+      <tbody>
+        <% appointments.forEach(item => { %>
+          <tr>
+            <td>#<%= item.id %></td>
+            <td><%= item.patient_first %> <%= item.patient_last %></td>
+            <td><%= item.patient_id %></td>
+            <td><%= item.scheduled_at.toLocaleString() %></td>
+            <td><span class="badge"><%= item.status %></span></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Submitted Records</h2>
+  <div class="record-list">
+    <% records.forEach(record => { %>
+      <article class="record-card">
+        <h3><%= record.patient_first %> <%= record.patient_last %></h3>
+        <p><strong>Findings:</strong> <%= record.findings %></p>
+        <p><strong>Prescription:</strong> <%= record.prescription %></p>
+      </article>
+    <% }) %>
+  </div>
+</section>
+<%- include('../partials/footer') %>

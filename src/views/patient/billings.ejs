@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Patient portal</p>
+    <h1>My Billings</h1>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Description</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        <% billings.forEach(bill => { %>
+          <tr>
+            <td><%= bill.description %></td>
+            <td>₱<%= Number(bill.amount).toFixed(2) %></td>
+            <td><span class="badge"><%= bill.status %></span></td>
+            <td><%= bill.created_at.toLocaleString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('../partials/footer') %>

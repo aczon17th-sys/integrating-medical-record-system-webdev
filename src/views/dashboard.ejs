@@ -1,0 +1,26 @@
+<%- include('partials/header') %>
+<section class="hero">
+  <div>
+    <p class="eyebrow"><%= currentUser.role %> account</p>
+    <h1>Welcome, <%= currentUser.name %></h1>
+    <p class="lead">Your permissions are limited to your assigned healthcare role.</p>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article class="stat"><small>01</small><span><%= stats.patients %></span><p>Patients</p></article>
+  <article class="stat"><small>02</small><span><%= stats.appointments %></span><p>Appointments</p></article>
+  <article class="stat"><small>03</small><span><%= stats.records %></span><p>Medical Records</p></article>
+  <article class="stat"><small>04</small><span><%= stats.unpaidBills %></span><p>Unpaid Bills</p></article>
+</section>
+
+<section class="panel">
+  <h2>Role Access</h2>
+  <div class="role-grid">
+    <div><strong>Admin</strong><p>Full CRUD and account management for doctors, nurses, receptionists, and patients.</p></div>
+    <div><strong>Nurse / Receptionist</strong><p>Create patients, manage appointments, billings, and follow-up bookings.</p></div>
+    <div><strong>Doctor</strong><p>Add findings and prescriptions only.</p></div>
+    <div><strong>Patient</strong><p>Request appointments and view billings only.</p></div>
+  </div>
+</section>
+<%- include('partials/footer') %>

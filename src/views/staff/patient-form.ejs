@@ -1,0 +1,16 @@
+<%- include('../partials/header') %>
+<section class="panel narrow">
+  <h1>Create Patient Account</h1>
+  <form class="form-grid" action="/staff/patients" method="post">
+    <label>First name<input name="first_name" required></label>
+    <label>Last name<input name="last_name" required></label>
+    <label>Email<input type="email" name="email" required></label>
+    <label>Password<input type="password" name="password" required></label>
+    <label>Phone<input name="phone"></label>
+    <label>Date of birth<input type="date" name="date_of_birth"></label>
+    <label>Gender<input name="gender"></label>
+    <label class="span-2">Address<textarea name="address"></textarea></label>
+    <button class="button" type="submit">Create patient</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+<section class="login-shell">
+  <div class="welcome-copy">
+    <p class="eyebrow">Clinic platform</p>
+    <h1>Integrating Medical Record and Appointment Scheduling System</h1>
+    <p class="lead">
+      Manage patient records, appointments, findings, prescriptions, and billings with role-based access.
+    </p>
+    <div class="welcome-highlights">
+      <span>Medical Records</span>
+      <span>Appointments</span>
+      <span>Billing</span>
+    </div>
+  </div>
+  <form class="panel login-card" action="/login" method="post">
+    <h2>Sign in</h2>
+    <label>Email
+      <input type="email" name="email" required value="admin@system.local">
+    </label>
+    <label>Password
+      <input type="password" name="password" required value="admin123">
+    </label>
+    <button class="button" type="submit">Login</button>
+    <p class="muted">Default admin: admin@system.local / admin123</p>
+  </form>
+</section>
+<%- include('../partials/footer') %>

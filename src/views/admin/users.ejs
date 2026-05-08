@@ -1,0 +1,41 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Admin CRUD</p>
+    <h1>Manage Users</h1>
+  </div>
+  <a class="button" href="/admin/users/new">Create user</a>
+</section>
+
+<section class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(user => { %>
+          <tr>
+            <td><%= user.first_name %> <%= user.last_name %></td>
+            <td><%= user.email %></td>
+            <td><span class="badge"><%= user.role %></span></td>
+            <td><%= user.is_active ? 'Active' : 'Inactive' %></td>
+            <td class="actions">
+              <a class="small-button" href="/admin/users/<%= user.id %>/edit">Edit</a>
+              <form action="/admin/users/<%= user.id %>?_method=DELETE" method="post">
+                <button class="danger-button" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('../partials/footer') %>

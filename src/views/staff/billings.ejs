@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Billing</p>
+    <h1>Billings</h1>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Create Billing</h2>
+  <form class="form-grid" action="/staff/billings" method="post">
+    <label>Patient
+      <select name="patient_id" required>
+        <% patients.forEach(patient => { %>
+          <option value="<%= patient.id %>"><%= patient.last_name %>, <%= patient.first_name %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Appointment
+      <select name="appointment_id">
+        <option value="">No linked appointment</option>
+        <% appointments.forEach(appointment => { %>
+          <option value="<%= appointment.id %>">#<%= appointment.id %> - <%= appointment.scheduled_at.toLocaleString() %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Amount<input type="number" name="amount" min="0" step="0.01" required></label>
+    <label>Status
+      <select name="status">
+        <option value="unpaid">Unpaid</option>
+        <option value="paid">Paid</option>
+      </select>
+    </label>
+    <label class="span-2">Description<textarea name="description" required></textarea></label>
+    <button class="button" type="submit">Create bill</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>Billing List</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Patient</th><th>Description</th><th>Amount</th><th>Status</th><th>Update</th></tr></thead>
+      <tbody>
+        <% billings.forEach(bill => { %>
+          <tr>
+            <td><%= bill.patient_first %> <%= bill.patient_last %></td>
+            <td><%= bill.description %></td>
+            <td>₱<%= Number(bill.amount).toFixed(2) %></td>
+            <td><span class="badge"><%= bill.status %></span></td>
+            <td>
+              <form class="inline-form" action="/staff/billings/<%= bill.id %>/status?_method=PUT" method="post">
+                <select name="status">
+                  <% ['unpaid','paid','cancelled'].forEach(status => { %>
+                    <option value="<%= status %>" <%= bill.status === status ? 'selected' : '' %>><%= status %></option>
+                  <% }) %>
+                </select>
+                <button class="small-button" type="submit">Save</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('../partials/footer') %>

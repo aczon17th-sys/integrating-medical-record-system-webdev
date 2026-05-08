@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> | Medical Record and Appointment Scheduling System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/dashboard">Medical Record & Appointment System</a>
+      <% if (currentUser) { %>
+        <nav class="nav">
+          <a href="/dashboard">Dashboard</a>
+          <% if (currentUser.role === 'admin') { %>
+            <a href="/admin/users">Users</a>
+            <a href="/staff/patients">Patients</a>
+            <a href="/staff/appointments">Appointments</a>
+            <a href="/staff/billings">Billings</a>
+          <% } %>
+          <% if (currentUser.role === 'nurse' || currentUser.role === 'receptionist') { %>
+            <a href="/staff/patients">Patients</a>
+            <a href="/staff/appointments">Appointments</a>
+            <a href="/staff/billings">Billings</a>
+          <% } %>
+          <% if (currentUser.role === 'doctor') { %>
+            <a href="/doctor/records">Findings</a>
+          <% } %>
+          <% if (currentUser.role === 'patient') { %>
+            <a href="/patient/appointments">Appointments</a>
+            <a href="/patient/billings">Billings</a>
+          <% } %>
+        </nav>
+        <form action="/logout" method="post">
+          <button class="ghost-button" type="submit">Logout</button>
+        </form>
+      <% } %>
+    </header>
+    <main class="page">
+      <% if (notice) { %>
+        <div class="notice <%= notice.type %>"><%= notice.message %></div>
+      <% } %>

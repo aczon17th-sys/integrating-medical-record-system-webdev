@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Nurse / Receptionist</p>
+    <h1>Patients</h1>
+  </div>
+  <a class="button" href="/staff/patients/new">Create patient</a>
+</section>
+
+<section class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Address</th></tr></thead>
+      <tbody>
+        <% patients.forEach(patient => { %>
+          <tr>
+            <td><%= patient.first_name %> <%= patient.last_name %></td>
+            <td><%= patient.email %></td>
+            <td><%= patient.phone || '-' %></td>
+            <td><%= patient.address || '-' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('../partials/footer') %>

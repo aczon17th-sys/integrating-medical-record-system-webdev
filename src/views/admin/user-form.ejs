@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+<section class="panel narrow">
+  <h1><%= title %></h1>
+  <form class="form-grid" action="<%= action %>" method="post">
+    <label>Role
+      <select name="role" required>
+        <% allowedRoles.forEach(role => { %>
+          <option value="<%= role %>" <%= user && user.role === role ? 'selected' : '' %>><%= role %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>First name
+      <input name="first_name" required value="<%= user ? user.first_name : '' %>">
+    </label>
+    <label>Last name
+      <input name="last_name" required value="<%= user ? user.last_name : '' %>">
+    </label>
+    <label>Email
+      <input type="email" name="email" required value="<%= user ? user.email : '' %>">
+    </label>
+    <label>Password
+      <input type="password" name="password" <%= user ? '' : 'required' %>>
+    </label>
+    <label>Phone
+      <input name="phone" value="<%= user && user.phone ? user.phone : '' %>">
+    </label>
+    <label>Date of birth
+      <input type="date" name="date_of_birth" value="<%= user && user.date_of_birth ? user.date_of_birth.toISOString().slice(0, 10) : '' %>">
+    </label>
+    <label>Gender
+      <input name="gender" value="<%= user && user.gender ? user.gender : '' %>">
+    </label>
+    <label class="span-2">Address
+      <textarea name="address"><%= user && user.address ? user.address : '' %></textarea>
+    </label>
+    <% if (user) { %>
+      <label class="checkbox"><input type="checkbox" name="is_active" <%= user.is_active ? 'checked' : '' %>> Active</label>
+    <% } %>
+    <button class="button" type="submit">Save</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

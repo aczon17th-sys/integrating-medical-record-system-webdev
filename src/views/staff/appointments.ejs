@@ -1,0 +1,68 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Scheduling</p>
+    <h1>Appointments</h1>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Book Appointment</h2>
+  <form class="form-grid" action="/staff/appointments" method="post">
+    <label>Patient
+      <select name="patient_id" required>
+        <% patients.forEach(patient => { %>
+          <option value="<%= patient.id %>"><%= patient.last_name %>, <%= patient.first_name %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Doctor
+      <select name="doctor_id">
+        <option value="">Unassigned</option>
+        <% doctors.forEach(doctor => { %>
+          <option value="<%= doctor.id %>">Dr. <%= doctor.last_name %>, <%= doctor.first_name %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Date and time<input type="datetime-local" name="scheduled_at" required></label>
+    <label>Status
+      <select name="status">
+        <option value="scheduled">Scheduled</option>
+        <option value="requested">Requested</option>
+      </select>
+    </label>
+    <label class="span-2">Reason<textarea name="reason"></textarea></label>
+    <button class="button" type="submit">Save appointment</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>Appointment List</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Patient</th><th>Doctor</th><th>Schedule</th><th>Reason</th><th>Status</th><th>Update</th></tr></thead>
+      <tbody>
+        <% appointments.forEach(item => { %>
+          <tr>
+            <td><%= item.patient_first %> <%= item.patient_last %></td>
+            <td><%= item.doctor_first ? `Dr. ${item.doctor_first} ${item.doctor_last}` : 'Unassigned' %></td>
+            <td><%= item.scheduled_at.toLocaleString() %></td>
+            <td><%= item.reason || '-' %></td>
+            <td><span class="badge"><%= item.status %></span></td>
+            <td>
+              <form class="inline-form" action="/staff/appointments/<%= item.id %>/status?_method=PUT" method="post">
+                <select name="status">
+                  <% ['requested','scheduled','completed','cancelled'].forEach(status => { %>
+                    <option value="<%= status %>" <%= item.status === status ? 'selected' : '' %>><%= status %></option>
+                  <% }) %>
+                </select>
+                <button class="small-button" type="submit">Save</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('../partials/footer') %>
