@@ -13,6 +13,8 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="patients.html">Patients</a>
       <a href="appointments.html">Appointments</a>
+      <a href="billing.html">Billing</a>
+      <a href="accounts.html" class="admin-only">Accounts</a>
       <button id="logoutBtn" type="button">Logout</button>
     </nav>
   </header>
@@ -31,6 +33,18 @@
       <form id="patientForm" class="form-grid">
         <input type="hidden" id="patientId">
         <label>Full Name<input id="fullname" required></label>
+        <label>Valid ID Type
+          <select id="validIdType" required>
+            <option value="">Select ID</option>
+            <option value="Philippine National ID">Philippine National ID</option>
+            <option value="Passport">Passport</option>
+            <option value="Driver's License">Driver's License</option>
+            <option value="Voter's ID">Voter's ID</option>
+            <option value="UMID">UMID</option>
+            <option value="Other Government ID">Other Government ID</option>
+          </select>
+        </label>
+        <label>Valid ID Number<input id="validIdNumber" required></label>
         <label>Age<input id="age" type="number" min="0"></label>
         <label>Gender<input id="gender"></label>
         <label>Diagnosis<input id="diagnosis"></label>
@@ -50,6 +64,7 @@
           <thead>
             <tr>
               <th>Name</th>
+              <th>Valid ID</th>
               <th>Age</th>
               <th>Gender</th>
               <th>Diagnosis</th>

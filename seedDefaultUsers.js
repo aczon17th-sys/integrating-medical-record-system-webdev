@@ -7,19 +7,25 @@ const defaultUsers = [
     username: "admin",
     email: "admin@medicalsystem.local",
     password: "Admin@123",
-    role: "admin"
+    role: "admin",
+    licenseId: null,
+    staffId: null
   },
   {
     username: "doctor",
     email: "doctor@medicalsystem.local",
     password: "Doctor@123",
-    role: "doctor"
+    role: "doctor",
+    licenseId: "MD-0001",
+    staffId: null
   },
   {
     username: "staff",
     email: "staff@medicalsystem.local",
     password: "Staff@123",
-    role: "staff"
+    role: "staff",
+    licenseId: null,
+    staffId: "STF-0001"
   }
 ];
 
@@ -40,14 +46,18 @@ const seedDefaultUsers = async () => {
         username: account.username,
         email: account.email,
         password: hashedPassword,
-        role: account.role
+        role: account.role,
+        licenseId: account.licenseId,
+        staffId: account.staffId
       });
     } else {
       await User.create({
         username: account.username,
         email: account.email,
         password: hashedPassword,
-        role: account.role
+        role: account.role,
+        licenseId: account.licenseId,
+        staffId: account.staffId
       });
     }
   }

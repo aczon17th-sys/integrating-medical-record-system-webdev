@@ -26,6 +26,16 @@ const User = sequelize.define("User", {
     type: DataTypes.ENUM("admin", "doctor", "staff"),
     allowNull: false,
     defaultValue: "staff"
+  },
+
+  licenseId: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+
+  staffId: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 });
 

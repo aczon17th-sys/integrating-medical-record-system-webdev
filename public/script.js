@@ -34,6 +34,20 @@ const requireAuth = () => {
   if (!token && !publicPages.includes(page)) {
     window.location.href = "login.html";
   }
+
+  if (page === "accounts.html" && currentUser?.role !== "admin") {
+    window.location.href = "dashboard.html";
+  }
+};
+
+const applyRoleUi = () => {
+  document.querySelectorAll(".admin-only").forEach((element) => {
+    element.hidden = currentUser?.role !== "admin";
+  });
+
+  document.querySelectorAll(".staff-admin-only").forEach((element) => {
+    element.hidden = !["admin", "staff"].includes(currentUser?.role);
+  });
 };
 
 const setMessage = (id, text, isError = false) => {
@@ -136,6 +150,9 @@ const loadDashboard = async () => {
 
 const patientPayload = () => ({
   fullname: document.getElementById("fullname").value,
+  validIdType: document.getElementById("validIdType").value,
+  validIdNumber: document.getElementById("validIdNumber").value,
+  identityVerified: true,
   age: document.getElementById("age").value || null,
   gender: document.getElementById("gender").value,
   diagnosis: document.getElementById("diagnosis").value,
@@ -162,19 +179,24 @@ const loadPatients = async () => {
     ? patients.map((patient) => `
       <tr>
         <td>${escapeHtml(patient.fullname)}</td>
+        <td>${escapeHtml(patient.validIdType || "")}<br><small>${escapeHtml(patient.validIdNumber || "")}</small></td>
         <td>${escapeHtml(patient.age || "")}</td>
         <td>${escapeHtml(patient.gender || "")}</td>
         <td>${escapeHtml(patient.diagnosis || "")}</td>
         <td>${escapeHtml(patient.medications || "")}</td>
         <td>
           <div class="actions">
-            <button class="small-button" data-edit-patient="${patient.id}">Edit</button>
-            <button class="danger-button" data-delete-patient="${patient.id}">Delete</button>
+            ${["admin", "staff"].includes(currentUser?.role)
+              ? `<button class="small-button" data-edit-patient="${patient.id}">Edit</button>`
+              : ""}
+            ${currentUser?.role === "admin"
+              ? `<button class="danger-button" data-delete-patient="${patient.id}">Delete</button>`
+              : ""}
           </div>
         </td>
       </tr>
     `).join("")
-    : "<tr><td colspan=\"6\">No patients found.</td></tr>";
+    : "<tr><td colspan=\"7\">No patients found.</td></tr>";
 };
 
 const setupPatients = () => {
@@ -182,6 +204,10 @@ const setupPatients = () => {
 
   if (!form) {
     return;
+  }
+
+  if (!["admin", "staff"].includes(currentUser?.role)) {
+    form.closest(".panel").hidden = true;
   }
 
   form.addEventListener("submit", async (event) => {
@@ -213,6 +239,8 @@ const setupPatients = () => {
       const patient = await apiRequest(`/patients/${editId}`);
       document.getElementById("patientId").value = patient.id;
       document.getElementById("fullname").value = patient.fullname || "";
+      document.getElementById("validIdType").value = patient.validIdType || "";
+      document.getElementById("validIdNumber").value = patient.validIdNumber || "";
       document.getElementById("age").value = patient.age || "";
       document.getElementById("gender").value = patient.gender || "";
       document.getElementById("diagnosis").value = patient.diagnosis || "";
@@ -263,7 +291,9 @@ const loadAppointments = async () => {
           <div class="actions">
             <button class="small-button" data-edit-appointment="${appointment.id}">Edit</button>
             <button class="danger-button" data-cancel-appointment="${appointment.id}">Cancel</button>
-            <button class="danger-button" data-delete-appointment="${appointment.id}">Delete</button>
+            ${currentUser?.role === "admin"
+              ? `<button class="danger-button" data-delete-appointment="${appointment.id}">Delete</button>`
+              : ""}
           </div>
         </td>
       </tr>
@@ -276,6 +306,10 @@ const setupAppointments = () => {
 
   if (!form) {
     return;
+  }
+
+  if (!["admin", "staff"].includes(currentUser?.role)) {
+    form.closest(".panel").hidden = true;
   }
 
   form.addEventListener("submit", async (event) => {
@@ -333,9 +367,294 @@ const setupAppointments = () => {
   loadAppointments().catch((error) => setMessage("appointmentMessage", error.message, true));
 };
 
+const accountPayload = () => {
+  const payload = {
+    username: document.getElementById("accountUsername").value,
+    email: document.getElementById("accountEmail").value,
+    role: document.getElementById("accountRole").value,
+    licenseId: document.getElementById("licenseId").value,
+    staffId: document.getElementById("staffId").value
+  };
+  const password = document.getElementById("accountPassword").value;
+
+  if (password) {
+    payload.password = password;
+  }
+
+  return payload;
+};
+
+const clearAccountForm = () => {
+  document.getElementById("accountId").value = "";
+  document.getElementById("accountForm").reset();
+  document.getElementById("accountFormTitle").textContent = "Create Account";
+  document.getElementById("accountPassword").required = true;
+  updateCredentialFields();
+};
+
+const updateCredentialFields = () => {
+  const role = document.getElementById("accountRole")?.value;
+  const licenseField = document.getElementById("licenseIdField");
+  const staffField = document.getElementById("staffIdField");
+  const licenseInput = document.getElementById("licenseId");
+  const staffInput = document.getElementById("staffId");
+
+  if (!licenseField || !staffField) {
+    return;
+  }
+
+  licenseField.hidden = role !== "doctor";
+  staffField.hidden = role !== "staff";
+  licenseInput.required = role === "doctor";
+  staffInput.required = role === "staff";
+
+  if (role !== "doctor") {
+    licenseInput.value = "";
+  }
+
+  if (role !== "staff") {
+    staffInput.value = "";
+  }
+};
+
+const loadAccounts = async () => {
+  const table = document.getElementById("accountTable");
+
+  if (!table) {
+    return;
+  }
+
+  const users = await apiRequest("/users");
+
+  table.innerHTML = users.length
+    ? users.map((user) => `
+      <tr>
+        <td>${escapeHtml(user.username)}</td>
+        <td>${escapeHtml(user.email || "")}</td>
+        <td><span class="badge">${escapeHtml(user.role)}</span></td>
+        <td>${escapeHtml(user.role === "doctor" ? user.licenseId || "" : user.role === "staff" ? user.staffId || "" : "System Admin")}</td>
+        <td>
+          <div class="actions">
+            <button class="small-button" data-edit-account="${user.id}">Edit</button>
+            <button class="danger-button" data-delete-account="${user.id}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join("")
+    : "<tr><td colspan=\"5\">No accounts found.</td></tr>";
+};
+
+const setupAccounts = () => {
+  const form = document.getElementById("accountForm");
+
+  if (!form) {
+    return;
+  }
+
+  document.getElementById("accountPassword").required = true;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const id = document.getElementById("accountId").value;
+
+    try {
+      await apiRequest(id ? `/users/${id}` : "/users", {
+        method: id ? "PUT" : "POST",
+        body: JSON.stringify(accountPayload())
+      });
+
+      clearAccountForm();
+      setMessage("accountMessage", "Account saved successfully.");
+      await loadAccounts();
+    } catch (error) {
+      setMessage("accountMessage", error.message, true);
+    }
+  });
+
+  document.getElementById("resetAccountForm").addEventListener("click", clearAccountForm);
+  document.getElementById("accountRole").addEventListener("change", updateCredentialFields);
+  updateCredentialFields();
+
+  document.getElementById("accountTable").addEventListener("click", async (event) => {
+    const editId = event.target.dataset.editAccount;
+    const deleteId = event.target.dataset.deleteAccount;
+
+    if (editId) {
+      const users = await apiRequest("/users");
+      const user = users.find((item) => String(item.id) === String(editId));
+
+      document.getElementById("accountId").value = user.id;
+      document.getElementById("accountUsername").value = user.username || "";
+      document.getElementById("accountEmail").value = user.email || "";
+      document.getElementById("accountRole").value = user.role || "staff";
+      document.getElementById("licenseId").value = user.licenseId || "";
+      document.getElementById("staffId").value = user.staffId || "";
+      document.getElementById("accountPassword").value = "";
+      document.getElementById("accountPassword").required = false;
+      document.getElementById("accountFormTitle").textContent = "Edit Account";
+      updateCredentialFields();
+    }
+
+    if (deleteId && confirm("Delete this account?")) {
+      try {
+        await apiRequest(`/users/${deleteId}`, { method: "DELETE" });
+        await loadAccounts();
+      } catch (error) {
+        setMessage("accountMessage", error.message, true);
+      }
+    }
+  });
+
+  loadAccounts().catch((error) => setMessage("accountMessage", error.message, true));
+};
+
+const billingPayload = () => ({
+  patientName: document.getElementById("billingPatientName").value,
+  statementDate: document.getElementById("statementDate").value,
+  serviceDescription: document.getElementById("serviceDescription").value,
+  amount: document.getElementById("amount").value,
+  philhealthId: document.getElementById("philhealthId").value,
+  seniorCitizenId: document.getElementById("seniorCitizenId").value,
+  pwdId: document.getElementById("pwdId").value,
+  discountType: document.getElementById("discountType").value,
+  paymentMethod: document.getElementById("paymentMethod").value,
+  paymentStatus: document.getElementById("paymentStatus").value
+});
+
+const formatMoney = (value) => {
+  return Number(value || 0).toLocaleString("en-PH", {
+    style: "currency",
+    currency: "PHP"
+  });
+};
+
+const formatPaymentMethod = (value) => {
+  const labels = {
+    cash: "Cash Payment",
+    online_banking: "Online Banking",
+    ewallet: "E-Wallet"
+  };
+
+  return labels[value] || value;
+};
+
+const clearBillingForm = () => {
+  document.getElementById("billingId").value = "";
+  document.getElementById("billingForm").reset();
+  document.getElementById("billingFormTitle").textContent = "Create Billing Statement";
+};
+
+const loadBillings = async () => {
+  const table = document.getElementById("billingTable");
+
+  if (!table) {
+    return;
+  }
+
+  const billings = await apiRequest("/billings");
+
+  table.innerHTML = billings.length
+    ? billings.map((billing) => `
+      <tr>
+        <td>${escapeHtml(billing.patientName)}<br><small>${escapeHtml(billing.statementDate || "")}</small></td>
+        <td>${escapeHtml(billing.serviceDescription || "")}</td>
+        <td>${formatMoney(billing.amount)}</td>
+        <td>
+          <span class="badge">${escapeHtml(billing.discountType)}</span><br>
+          <small>${formatMoney(billing.discountAmount)}</small>
+        </td>
+        <td>${formatMoney(billing.totalAmount)}</td>
+        <td>
+          ${escapeHtml(formatPaymentMethod(billing.paymentMethod))}<br>
+          <span class="badge">${escapeHtml(billing.paymentStatus)}</span>
+        </td>
+        <td>
+          <div class="actions">
+            ${["admin", "staff"].includes(currentUser?.role)
+              ? `<button class="small-button" data-edit-billing="${billing.id}">Edit</button>`
+              : ""}
+            ${currentUser?.role === "admin"
+              ? `<button class="danger-button" data-delete-billing="${billing.id}">Delete</button>`
+              : ""}
+          </div>
+        </td>
+      </tr>
+    `).join("")
+    : "<tr><td colspan=\"7\">No billing statements found.</td></tr>";
+};
+
+const setupBillings = () => {
+  const form = document.getElementById("billingForm");
+
+  if (!form) {
+    return;
+  }
+
+  if (!["admin", "staff"].includes(currentUser?.role)) {
+    form.closest(".panel").hidden = true;
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const id = document.getElementById("billingId").value;
+
+    try {
+      await apiRequest(id ? `/billings/${id}` : "/billings", {
+        method: id ? "PUT" : "POST",
+        body: JSON.stringify(billingPayload())
+      });
+
+      clearBillingForm();
+      setMessage("billingMessage", "Billing statement saved successfully.");
+      await loadBillings();
+    } catch (error) {
+      setMessage("billingMessage", error.message, true);
+    }
+  });
+
+  document.getElementById("resetBillingForm").addEventListener("click", clearBillingForm);
+
+  document.getElementById("billingTable").addEventListener("click", async (event) => {
+    const editId = event.target.dataset.editBilling;
+    const deleteId = event.target.dataset.deleteBilling;
+
+    if (editId) {
+      const billings = await apiRequest("/billings");
+      const billing = billings.find((item) => String(item.id) === String(editId));
+
+      document.getElementById("billingId").value = billing.id;
+      document.getElementById("billingPatientName").value = billing.patientName || "";
+      document.getElementById("statementDate").value = billing.statementDate || "";
+      document.getElementById("serviceDescription").value = billing.serviceDescription || "";
+      document.getElementById("amount").value = billing.amount || "";
+      document.getElementById("philhealthId").value = billing.philhealthId || "";
+      document.getElementById("seniorCitizenId").value = billing.seniorCitizenId || "";
+      document.getElementById("pwdId").value = billing.pwdId || "";
+      document.getElementById("discountType").value = billing.discountType || "none";
+      document.getElementById("paymentMethod").value = billing.paymentMethod || "cash";
+      document.getElementById("paymentStatus").value = billing.paymentStatus || "unpaid";
+      document.getElementById("billingFormTitle").textContent = "Edit Billing Statement";
+    }
+
+    if (deleteId && confirm("Delete this billing statement?")) {
+      try {
+        await apiRequest(`/billings/${deleteId}`, { method: "DELETE" });
+        await loadBillings();
+      } catch (error) {
+        setMessage("billingMessage", error.message, true);
+      }
+    }
+  });
+
+  loadBillings().catch((error) => setMessage("billingMessage", error.message, true));
+};
+
 requireAuth();
+applyRoleUi();
 setupLogin();
 setupLogout();
 loadDashboard();
 setupPatients();
 setupAppointments();
+setupAccounts();
+setupBillings();

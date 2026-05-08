@@ -8,6 +8,8 @@ exports.getPatients = async (req, res) => {
       ? {
           [Op.or]: [
             { fullname: { [Op.like]: `%${search}%` } },
+            { validIdType: { [Op.like]: `%${search}%` } },
+            { validIdNumber: { [Op.like]: `%${search}%` } },
             { gender: { [Op.like]: `%${search}%` } },
             { diagnosis: { [Op.like]: `%${search}%` } },
             { medications: { [Op.like]: `%${search}%` } }
@@ -42,6 +44,10 @@ exports.getPatient = async (req, res) => {
 
 exports.addPatient = async (req, res) => {
   try {
+    if (!req.body.validIdType || !req.body.validIdNumber) {
+      return res.status(400).json({ message: "Valid ID type and ID number are required for patient verification" });
+    }
+
     const patient = await Patient.create(req.body);
     res.status(201).json(patient);
   } catch (error) {
@@ -55,6 +61,13 @@ exports.updatePatient = async (req, res) => {
 
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
+    }
+
+    const nextValidIdType = req.body.validIdType !== undefined ? req.body.validIdType : patient.validIdType;
+    const nextValidIdNumber = req.body.validIdNumber !== undefined ? req.body.validIdNumber : patient.validIdNumber;
+
+    if (!nextValidIdType || !nextValidIdNumber) {
+      return res.status(400).json({ message: "Valid ID type and ID number are required for patient verification" });
     }
 
     await patient.update(req.body);

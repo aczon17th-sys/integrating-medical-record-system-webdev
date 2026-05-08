@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing | Medical System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="dashboard.html">Medical System</a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="patients.html">Patients</a>
+      <a href="appointments.html">Appointments</a>
+      <a href="billing.html">Billing</a>
+      <a href="accounts.html" class="admin-only">Accounts</a>
+      <button id="logoutBtn" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">Statement</p>
+        <h1>Billing and Payments</h1>
+      </div>
+      <p id="currentUser" class="muted"></p>
+    </section>
+
+    <section class="panel">
+      <h2 id="billingFormTitle">Create Billing Statement</h2>
+      <form id="billingForm" class="form-grid">
+        <input type="hidden" id="billingId">
+        <label>Patient Name<input id="billingPatientName" required></label>
+        <label>Statement Date<input id="statementDate" type="date" required></label>
+        <label class="span-2">Service Description<input id="serviceDescription" required></label>
+        <label>Amount<input id="amount" type="number" min="0" step="0.01" required></label>
+        <label>Discount Benefit
+          <select id="discountType">
+            <option value="none">None</option>
+            <option value="philhealth">PhilHealth</option>
+            <option value="senior">Senior Citizen</option>
+            <option value="pwd">PWD</option>
+          </select>
+        </label>
+        <label>PhilHealth ID<input id="philhealthId"></label>
+        <label>Senior Citizen ID<input id="seniorCitizenId"></label>
+        <label>PWD ID<input id="pwdId"></label>
+        <label>Payment Method
+          <select id="paymentMethod">
+            <option value="cash">Cash Payment</option>
+            <option value="online_banking">Online Banking</option>
+            <option value="ewallet">E-Wallet</option>
+          </select>
+        </label>
+        <label>Payment Status
+          <select id="paymentStatus">
+            <option value="unpaid">Unpaid</option>
+            <option value="paid">Paid</option>
+          </select>
+        </label>
+        <div class="actions span-2">
+          <button class="button" type="submit">Save Billing</button>
+          <button class="secondary-button" type="button" id="resetBillingForm">Clear</button>
+        </div>
+      </form>
+      <p id="billingMessage" class="message"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Billing Statements</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Service</th>
+              <th>Amount</th>
+              <th>Discount</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="billingTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -6,10 +6,11 @@ const {
   updateAppointment,
   deleteAppointment
 } = require("../controllers/appointmentController");
+const authorizeRoles = require("../middleware/roleMiddleware");
 
 router.get("/", getAppointments);
-router.post("/", addAppointment);
-router.put("/:id", updateAppointment);
-router.delete("/:id", deleteAppointment);
+router.post("/", authorizeRoles("admin", "staff"), addAppointment);
+router.put("/:id", authorizeRoles("admin", "doctor", "staff"), updateAppointment);
+router.delete("/:id", authorizeRoles("admin"), deleteAppointment);
 
 module.exports = router;

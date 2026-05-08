@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounts | Medical System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="dashboard.html">Medical System</a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="patients.html">Patients</a>
+      <a href="appointments.html">Appointments</a>
+      <a href="billing.html">Billing</a>
+      <a href="accounts.html" class="admin-only">Accounts</a>
+      <button id="logoutBtn" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">Admin</p>
+        <h1>Account Management</h1>
+      </div>
+      <p id="currentUser" class="muted"></p>
+    </section>
+
+    <section class="panel">
+      <h2 id="accountFormTitle">Create Account</h2>
+      <form id="accountForm" class="form-grid">
+        <input type="hidden" id="accountId">
+        <label>Username<input id="accountUsername" required></label>
+        <label>Email<input id="accountEmail" type="email" required></label>
+        <label>Password<input id="accountPassword" type="password" autocomplete="new-password"></label>
+        <label>Role
+          <select id="accountRole" required>
+            <option value="admin">Admin</option>
+            <option value="doctor">Doctor</option>
+            <option value="staff">Staff</option>
+          </select>
+        </label>
+        <label id="licenseIdField">Doctor License ID<input id="licenseId"></label>
+        <label id="staffIdField">Staff ID<input id="staffId"></label>
+        <div class="actions span-2">
+          <button class="button" type="submit">Save Account</button>
+          <button class="secondary-button" type="button" id="resetAccountForm">Clear</button>
+        </div>
+      </form>
+      <p id="accountMessage" class="message"></p>
+    </section>
+
+    <section class="panel">
+      <h2>User Accounts</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Credential ID</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="accountTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

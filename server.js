@@ -7,11 +7,14 @@ const sequelize = require("./config/db");
 require("./models/User");
 require("./models/Patient");
 require("./models/Appointment");
+require("./models/Billing");
 
 const authRoutes = require("./routes/authRoutes");
 const patientRoutes = require("./routes/patientRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const userRoutes = require("./routes/userRoutes");
+const billingRoutes = require("./routes/billingRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const { seedDefaultUsers } = require("./seedDefaultUsers");
 
@@ -39,6 +42,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", authMiddleware, dashboardRoutes);
 app.use("/api/patients", authMiddleware, patientRoutes);
 app.use("/api/appointments", authMiddleware, appointmentRoutes);
+app.use("/api/users", authMiddleware, userRoutes);
+app.use("/api/billings", authMiddleware, billingRoutes);
 
 app.get("/", (req, res) => {
   res.sendFile("index.html", { root: "public" });

@@ -7,6 +7,22 @@ const Patient = sequelize.define("Patient", {
     allowNull: false
   },
 
+  validIdType: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+
+  validIdNumber: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+
+  identityVerified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+
   age: {
     type: DataTypes.INTEGER
   },
