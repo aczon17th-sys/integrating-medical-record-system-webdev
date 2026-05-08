@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patients | Medical System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="dashboard.html">Medical System</a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="patients.html">Patients</a>
+      <a href="appointments.html">Appointments</a>
+      <button id="logoutBtn" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">Records</p>
+        <h1>Patient Management</h1>
+      </div>
+      <input id="patientSearch" class="search" type="search" placeholder="Search patients">
+    </section>
+
+    <section class="panel">
+      <h2 id="patientFormTitle">Add Patient</h2>
+      <form id="patientForm" class="form-grid">
+        <input type="hidden" id="patientId">
+        <label>Full Name<input id="fullname" required></label>
+        <label>Age<input id="age" type="number" min="0"></label>
+        <label>Gender<input id="gender"></label>
+        <label>Diagnosis<input id="diagnosis"></label>
+        <label class="span-2">Medications<textarea id="medications"></textarea></label>
+        <div class="actions span-2">
+          <button class="button" type="submit">Save Patient</button>
+          <button class="secondary-button" type="button" id="resetPatientForm">Clear</button>
+        </div>
+      </form>
+      <p id="patientMessage" class="message"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Patient List</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>Diagnosis</th>
+              <th>Medications</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="patientTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

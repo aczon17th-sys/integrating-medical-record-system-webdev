@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Medical System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-info">
+      <p class="eyebrow">Medical Records</p>
+      <h1>Appointment and Patient Management</h1>
+      <p>Centralized records, protected access, appointment tracking, and activity monitoring for clinic staff.</p>
+    </section>
+
+    <section class="panel login-panel">
+      <h2>System Login</h2>
+      <p class="muted">Use an admin or staff account.</p>
+      <form id="loginForm">
+        <label>
+          Username
+          <input type="text" id="username" autocomplete="username" required>
+        </label>
+        <label>
+          Password
+          <input type="password" id="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="button">Login</button>
+        <p id="loginMessage" class="message"></p>
+      </form>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

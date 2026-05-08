@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Medical System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="dashboard.html">Medical System</a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="patients.html">Patients</a>
+      <a href="appointments.html">Appointments</a>
+      <button id="logoutBtn" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">Overview</p>
+        <h1>Dashboard</h1>
+      </div>
+      <p id="currentUser" class="muted"></p>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat">
+        <small>Total Patients</small>
+        <strong id="totalPatients">0</strong>
+      </article>
+      <article class="stat">
+        <small>Total Appointments</small>
+        <strong id="totalAppointments">0</strong>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Recent Activities</h2>
+      <div id="recentActivities" class="activity-list"></div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

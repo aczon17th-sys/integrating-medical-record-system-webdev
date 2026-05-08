@@ -4,16 +4,21 @@ require("dotenv").config();
 
 const sequelize = require("./config/db");
 
+require("./models/User");
 require("./models/Patient");
 require("./models/Appointment");
 
+const authRoutes = require("./routes/authRoutes");
 const patientRoutes = require("./routes/patientRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
 sequelize
   .authenticate()
@@ -25,11 +30,13 @@ sequelize
   .then(() => console.log("Tables Synced"))
   .catch((err) => console.log(err));
 
-app.use("/api/patients", patientRoutes);
-app.use("/api/appointments", appointmentRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", authMiddleware, dashboardRoutes);
+app.use("/api/patients", authMiddleware, patientRoutes);
+app.use("/api/appointments", authMiddleware, appointmentRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Medical System API Running");
+  res.sendFile("index.html", { root: "public" });
 });
 
 const PORT = process.env.PORT || 5000;
