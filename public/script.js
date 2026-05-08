@@ -71,7 +71,7 @@ const setupLogin = () => {
       const data = await apiRequest("/auth/login", {
         method: "POST",
         body: JSON.stringify({
-          username: document.getElementById("username").value,
+          email: document.getElementById("email").value,
           password: document.getElementById("password").value
         })
       });
@@ -90,7 +90,7 @@ const setupLogout = () => {
   const userLabel = document.getElementById("currentUser");
 
   if (userLabel && currentUser) {
-    userLabel.textContent = `${currentUser.username} (${currentUser.role})`;
+    userLabel.textContent = `${currentUser.email} (${currentUser.role})`;
   }
 
   if (!button) {

@@ -13,6 +13,7 @@ const patientRoutes = require("./routes/patientRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
+const { seedDefaultUsers } = require("./seedDefaultUsers");
 
 const app = express();
 
@@ -27,7 +28,11 @@ sequelize
 
 sequelize
   .sync({ alter: true })
-  .then(() => console.log("Tables Synced"))
+  .then(async () => {
+    console.log("Tables Synced");
+    await seedDefaultUsers();
+    console.log("Default accounts ready");
+  })
   .catch((err) => console.log(err));
 
 app.use("/api/auth", authRoutes);

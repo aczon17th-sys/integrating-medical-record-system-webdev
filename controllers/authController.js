@@ -4,7 +4,7 @@ const User = require("../models/User");
 
 const createToken = (user) => {
   return jwt.sign(
-    { id: user.id, username: user.username, role: user.role },
+    { id: user.id, username: user.username, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
@@ -13,6 +13,7 @@ const createToken = (user) => {
 const serializeUser = (user) => ({
   id: user.id,
   username: user.username,
+  email: user.email,
   role: user.role,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt
@@ -20,21 +21,27 @@ const serializeUser = (user) => ({
 
 exports.register = async (req, res) => {
   try {
-    const { username, password, role } = req.body;
+    const { username, email, password, role } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required" });
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: "Username, email, and password are required" });
     }
 
-    const existingUser = await User.findOne({ where: { username } });
+    const { Op } = require("sequelize");
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [{ username }, { email }]
+      }
+    });
 
     if (existingUser) {
-      return res.status(409).json({ message: "Username already exists" });
+      return res.status(409).json({ message: "Username or email already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       username,
+      email,
       password: hashedPassword,
       role: role || "staff"
     });
@@ -50,13 +57,19 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, username, password } = req.body;
+    const login = email || username;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required" });
+    if (!login || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const user = await User.findOne({ where: { username } });
+    const { Op } = require("sequelize");
+    const user = await User.findOne({
+      where: {
+        [Op.or]: [{ email: login }, { username: login }]
+      }
+    });
 
     if (!user) {
       return res.status(401).json({ message: "User not found" });
