@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Medical Records | Medical System</title>
+  <title>Diagnosis | Medical System</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,27 +25,28 @@
     <section class="page-heading">
       <div>
         <p class="eyebrow">Doctor</p>
-        <h1>Diagnosis and Prescription</h1>
+        <h1>Patient Diagnosis</h1>
       </div>
+      <p id="currentUser" class="muted"></p>
     </section>
 
-    <section class="panel doctor-only">
-      <h2>Diagnose Patient</h2>
+    <section class="panel">
+      <h2>Submit Diagnosis Result</h2>
       <form id="recordForm" class="form-grid">
         <label class="span-2">Approved Appointment
           <select id="recordAppointmentId" required></select>
         </label>
-        <label class="span-2">Diagnosis<textarea id="diagnosis" required></textarea></label>
-        <label class="span-2">Prescription medicines<textarea id="prescription" required></textarea></label>
-        <label class="span-2">Medication instructions<textarea id="recordMedications"></textarea></label>
-        <label class="span-2">Therapies<textarea id="therapies"></textarea></label>
+        <label class="span-2">Diagnosis Result<textarea id="diagnosis" required></textarea></label>
+        <label class="span-2">Prescription<textarea id="prescription" required></textarea></label>
+        <label class="span-2">Medication Instructions<textarea id="recordMedications"></textarea></label>
+        <label class="span-2">Therapies / Additional Advice<textarea id="therapies"></textarea></label>
         <label class="checkbox span-2">
           <input type="checkbox" id="followUpNeeded">
-          Follow-up check-up needed
+          Patient needs follow-up check-up
         </label>
-        <label class="span-2">Follow-up note<textarea id="followUpNote"></textarea></label>
+        <label class="span-2">Follow-up note for staff<textarea id="followUpNote"></textarea></label>
         <div class="actions span-2">
-          <button class="button" type="submit">Save Record</button>
+          <button class="button" type="submit">Submit Diagnosis</button>
           <button class="secondary-button" type="reset">Clear</button>
         </div>
       </form>
@@ -53,7 +54,7 @@
     </section>
 
     <section class="panel">
-      <h2>Medical Records</h2>
+      <h2>Submitted Diagnosis Records</h2>
       <div id="recordList" class="record-list"></div>
     </section>
   </main>

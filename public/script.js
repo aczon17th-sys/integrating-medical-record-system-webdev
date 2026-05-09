@@ -42,6 +42,10 @@ const requireAuth = () => {
   if (page === "patients.html" && currentUser?.role === "patient") {
     window.location.href = "dashboard.html";
   }
+
+  if (page === "diagnosis.html" && currentUser?.role !== "doctor") {
+    window.location.href = "dashboard.html";
+  }
 };
 
 const applyRoleUi = () => {
