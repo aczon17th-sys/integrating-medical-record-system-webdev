@@ -13,6 +13,7 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="patients.html">Patients</a>
       <a href="appointments.html">Appointments</a>
+      <a href="records.html">Records</a>
       <a href="billing.html">Billing</a>
       <a href="accounts.html" class="admin-only">Accounts</a>
       <button id="logoutBtn" type="button">Logout</button>
@@ -37,6 +38,18 @@
         <small>Total Appointments</small>
         <strong id="totalAppointments">0</strong>
       </article>
+      <article class="stat">
+        <small>Average Patient Age</small>
+        <strong id="averageAge">0</strong>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Patient Population</h2>
+      <div class="chart-grid">
+        <canvas id="patientChart" width="720" height="280" aria-label="Patient registration chart"></canvas>
+        <div id="populationSummary" class="activity-list"></div>
+      </div>
     </section>
 
     <section class="panel">

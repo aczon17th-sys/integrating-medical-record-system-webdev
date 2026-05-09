@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const { Op } = require("sequelize");
 const User = require("../models/User");
+const { ensurePatientForUser } = require("../utils/patientAccount");
 
 const serializeUser = (user) => ({
   id: user.id,
@@ -74,6 +75,11 @@ exports.createUser = async (req, res) => {
       patientId: role === "patient" ? patientId || null : null
     });
 
+    if (user.role === "patient") {
+      await ensurePatientForUser(user);
+      await user.reload();
+    }
+
     res.status(201).json(serializeUser(user));
   } catch (error) {
     res.status(400).json({ message: "Failed to create user", error: error.message });
@@ -133,6 +139,12 @@ exports.updateUser = async (req, res) => {
     }
 
     await user.update(updates);
+
+    if (user.role === "patient") {
+      await ensurePatientForUser(user);
+      await user.reload();
+    }
+
     res.json(serializeUser(user));
   } catch (error) {
     res.status(400).json({ message: "Failed to update user", error: error.message });

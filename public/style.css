@@ -296,6 +296,42 @@ th {
   padding: 12px;
 }
 
+.chart-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.chart-grid canvas {
+  width: 100%;
+  max-width: 100%;
+  min-height: 240px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.record-list {
+  display: grid;
+  gap: 14px;
+}
+
+.record-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+}
+
+.record-card h3 {
+  margin: 0 0 8px;
+}
+
+.record-card p {
+  margin: 8px 0;
+}
+
 @media (max-width: 760px) {
   .topbar,
   .page-heading,
@@ -310,7 +346,8 @@ th {
   }
 
   .form-grid,
-  .stats-grid {
+  .stats-grid,
+  .chart-grid {
     grid-template-columns: 1fr;
   }
 

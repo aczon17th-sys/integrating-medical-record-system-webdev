@@ -13,6 +13,7 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="patients.html">Patients</a>
       <a href="appointments.html">Appointments</a>
+      <a href="records.html">Records</a>
       <a href="billing.html">Billing</a>
       <a href="accounts.html" class="admin-only">Accounts</a>
       <button id="logoutBtn" type="button">Logout</button>
@@ -36,9 +37,11 @@
         <label>Time<input id="appointmentTime" type="time" required></label>
         <label>Status
           <select id="status">
+            <option value="requested">Requested</option>
             <option value="scheduled">Scheduled</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
+            <option value="rejected">Rejected</option>
           </select>
         </label>
         <label class="span-2">Reason<textarea id="reason"></textarea></label>

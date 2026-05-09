@@ -38,6 +38,10 @@ const requireAuth = () => {
   if (page === "accounts.html" && currentUser?.role !== "admin") {
     window.location.href = "dashboard.html";
   }
+
+  if (page === "patients.html" && currentUser?.role === "patient") {
+    window.location.href = "dashboard.html";
+  }
 };
 
 const applyRoleUi = () => {
@@ -50,10 +54,14 @@ const applyRoleUi = () => {
   });
 
   if (currentUser?.role === "patient") {
-    document.querySelectorAll('a[href="accounts.html"]').forEach((element) => {
+    document.querySelectorAll('a[href="patients.html"], a[href="accounts.html"]').forEach((element) => {
       element.hidden = true;
     });
   }
+
+  document.querySelectorAll(".doctor-only").forEach((element) => {
+    element.hidden = currentUser?.role !== "doctor";
+  });
 };
 
 const setMessage = (id, text, isError = false) => {
@@ -124,6 +132,59 @@ const setupLogout = () => {
   });
 };
 
+const drawPatientChart = (data) => {
+  const canvas = document.getElementById("patientChart");
+
+  if (!canvas) {
+    return;
+  }
+
+  const context = canvas.getContext("2d");
+  const months = Object.keys(data.registrationsByMonth || {}).sort();
+  const values = months.map((month) => data.registrationsByMonth[month]);
+  const maxValue = Math.max(...values, 1);
+  const padding = 36;
+  const width = canvas.width;
+  const height = canvas.height;
+  const chartHeight = height - padding * 2;
+  const barWidth = months.length ? (width - padding * 2) / months.length : 0;
+
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = "#f7fbfc";
+  context.fillRect(0, 0, width, height);
+  context.strokeStyle = "#d9e2ec";
+  context.beginPath();
+  context.moveTo(padding, padding);
+  context.lineTo(padding, height - padding);
+  context.lineTo(width - padding, height - padding);
+  context.stroke();
+
+  if (!months.length) {
+    context.fillStyle = "#667085";
+    context.font = "16px Arial";
+    context.fillText("No patient registrations yet", padding + 12, height / 2);
+    return;
+  }
+
+  months.forEach((month, index) => {
+    const value = values[index];
+    const barHeight = (value / maxValue) * chartHeight;
+    const x = padding + index * barWidth + 8;
+    const y = height - padding - barHeight;
+
+    context.fillStyle = "#17796e";
+    context.fillRect(x, y, Math.max(barWidth - 16, 12), barHeight);
+    context.fillStyle = "#24364b";
+    context.font = "12px Arial";
+    context.fillText(String(value), x, y - 6);
+    context.save();
+    context.translate(x, height - 12);
+    context.rotate(-Math.PI / 5);
+    context.fillText(month, 0, 0);
+    context.restore();
+  });
+};
+
 const loadDashboard = async () => {
   const totalPatients = document.getElementById("totalPatients");
 
@@ -135,6 +196,21 @@ const loadDashboard = async () => {
     const data = await apiRequest("/dashboard");
     document.getElementById("totalPatients").textContent = data.totalPatients;
     document.getElementById("totalAppointments").textContent = data.totalAppointments;
+    document.getElementById("averageAge").textContent = data.averageAge || 0;
+    drawPatientChart(data);
+
+    const populationSummary = document.getElementById("populationSummary");
+    if (populationSummary) {
+      const genders = Object.entries(data.genderCounts || {});
+      populationSummary.innerHTML = genders.length
+        ? genders.map(([gender, count]) => `
+          <div class="activity-item">
+            <strong>${escapeHtml(gender)}</strong>
+            <p>${escapeHtml(count)} registered patient${Number(count) === 1 ? "" : "s"}</p>
+          </div>
+        `).join("")
+        : "<p class=\"muted\">No patient population data yet.</p>";
+    }
 
     const activities = document.getElementById("recentActivities");
     activities.innerHTML = data.recentActivities.length
@@ -217,6 +293,10 @@ const loadPatients = async () => {
         <td>${escapeHtml(patient.diagnosis || "")}</td>
         <td>${escapeHtml(patient.medications || "")}</td>
         <td>
+          ${patient.followUpNeeded ? "<span class=\"badge\">Needed</span>" : "<span class=\"badge\">None</span>"}
+          ${patient.followUpNote ? `<br><small>${escapeHtml(patient.followUpNote)}</small>` : ""}
+        </td>
+        <td>
           <div class="actions">
             ${["admin", "staff"].includes(currentUser?.role)
               ? `<button class="small-button" data-edit-patient="${patient.id}">Edit</button>`
@@ -228,7 +308,7 @@ const loadPatients = async () => {
         </td>
       </tr>
     `).join("")
-    : "<tr><td colspan=\"8\">No patients found.</td></tr>";
+    : "<tr><td colspan=\"9\">No patients found.</td></tr>";
 };
 
 const setupPatients = () => {
@@ -322,6 +402,7 @@ const loadAppointments = async () => {
   }
 
   const appointments = await apiRequest("/appointments");
+  const canManageAppointments = ["admin", "staff"].includes(currentUser?.role);
   table.innerHTML = appointments.length
     ? appointments.map((appointment) => `
       <tr>
@@ -332,8 +413,15 @@ const loadAppointments = async () => {
         <td><span class="badge">${escapeHtml(appointment.status)}</span></td>
         <td>
           <div class="actions">
-            ${currentUser?.role !== "patient"
+            ${canManageAppointments
               ? `<button class="small-button" data-edit-appointment="${appointment.id}">Edit</button>`
+              : ""}
+            ${canManageAppointments && appointment.status === "requested"
+              ? `<button class="small-button" data-approve-appointment="${appointment.id}">Approve</button>
+                 <button class="danger-button" data-reject-appointment="${appointment.id}">Reject</button>`
+              : ""}
+            ${canManageAppointments && ["scheduled", "completed"].includes(appointment.status)
+              ? `<button class="small-button" data-followup-appointment="${appointment.id}">Follow-up</button>`
               : ""}
             ${appointment.status !== "cancelled"
               ? `<button class="danger-button" data-cancel-appointment="${appointment.id}">Cancel</button>`
@@ -368,6 +456,10 @@ const setupAppointments = () => {
     status.required = false;
   }
 
+  if (currentUser?.role === "staff") {
+    document.querySelector('#status option[value="completed"]').disabled = true;
+  }
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const id = document.getElementById("appointmentId").value;
@@ -392,6 +484,9 @@ const setupAppointments = () => {
     const editId = event.target.dataset.editAppointment;
     const cancelId = event.target.dataset.cancelAppointment;
     const deleteId = event.target.dataset.deleteAppointment;
+    const approveId = event.target.dataset.approveAppointment;
+    const rejectId = event.target.dataset.rejectAppointment;
+    const followUpId = event.target.dataset.followupAppointment;
 
     if (editId) {
       const appointments = await apiRequest("/appointments");
@@ -414,6 +509,54 @@ const setupAppointments = () => {
       await loadAppointments();
     }
 
+    if (approveId) {
+      try {
+        await apiRequest(`/appointments/${approveId}`, {
+          method: "PUT",
+          body: JSON.stringify({ status: "scheduled" })
+        });
+        await loadAppointments();
+      } catch (error) {
+        setMessage("appointmentMessage", error.message, true);
+      }
+    }
+
+    if (rejectId) {
+      await apiRequest(`/appointments/${rejectId}`, {
+        method: "PUT",
+        body: JSON.stringify({ status: "rejected" })
+      });
+      await loadAppointments();
+    }
+
+    if (followUpId) {
+      const appointments = await apiRequest("/appointments");
+      const appointment = appointments.find((item) => String(item.id) === String(followUpId));
+      const appointmentDate = prompt("Follow-up date (YYYY-MM-DD):");
+      const appointmentTime = appointmentDate ? prompt("Follow-up time (HH:MM):") : null;
+
+      if (appointment && appointmentDate && appointmentTime) {
+        try {
+          await apiRequest("/appointments", {
+            method: "POST",
+            body: JSON.stringify({
+              patientName: appointment.patientName,
+              appointmentDate,
+              appointmentTime,
+              reason: `Follow-up for appointment #${appointment.id}`,
+              status: "scheduled",
+              followUpNeeded: true,
+              followUpForAppointmentId: appointment.id
+            })
+          });
+          setMessage("appointmentMessage", "Follow-up appointment added.");
+          await loadAppointments();
+        } catch (error) {
+          setMessage("appointmentMessage", error.message, true);
+        }
+      }
+    }
+
     if (deleteId && confirm("Delete this appointment?")) {
       await apiRequest(`/appointments/${deleteId}`, { method: "DELETE" });
       await loadAppointments();
@@ -421,6 +564,88 @@ const setupAppointments = () => {
   });
 
   loadAppointments().catch((error) => setMessage("appointmentMessage", error.message, true));
+};
+
+const recordPayload = () => ({
+  appointmentId: document.getElementById("recordAppointmentId").value,
+  diagnosis: document.getElementById("diagnosis").value,
+  prescription: document.getElementById("prescription").value,
+  medications: document.getElementById("recordMedications").value,
+  therapies: document.getElementById("therapies").value,
+  followUpNeeded: document.getElementById("followUpNeeded").checked,
+  followUpNote: document.getElementById("followUpNote").value
+});
+
+const loadRecordAppointments = async () => {
+  const select = document.getElementById("recordAppointmentId");
+
+  if (!select || currentUser?.role !== "doctor") {
+    return;
+  }
+
+  const appointments = await apiRequest("/appointments");
+  const approved = appointments.filter((appointment) => appointment.status === "scheduled");
+  select.innerHTML = approved.length
+    ? approved.map((appointment) => `
+      <option value="${appointment.id}">
+        ${escapeHtml(appointment.patientName)} - ${escapeHtml(appointment.appointmentDate || "")} ${escapeHtml(appointment.appointmentTime || "")}
+      </option>
+    `).join("")
+    : "<option value=\"\">No approved appointments</option>";
+};
+
+const loadMedicalRecords = async () => {
+  const list = document.getElementById("recordList");
+
+  if (!list) {
+    return;
+  }
+
+  const records = await apiRequest("/medical-records");
+  list.innerHTML = records.length
+    ? records.map((record) => `
+      <article class="record-card">
+        <h3>${escapeHtml(record.patientName)}</h3>
+        <p><strong>Doctor:</strong> ${escapeHtml(record.doctorName)}</p>
+        <p><strong>Diagnosis:</strong> ${escapeHtml(record.diagnosis)}</p>
+        <p><strong>Prescription medicines:</strong> ${escapeHtml(record.prescription)}</p>
+        <p><strong>Medication instructions:</strong> ${escapeHtml(record.medications || "-")}</p>
+        <p><strong>Therapies:</strong> ${escapeHtml(record.therapies || "-")}</p>
+        <p><strong>Follow-up:</strong> ${record.followUpNeeded ? "Needed" : "Not needed"} ${record.followUpNote ? `- ${escapeHtml(record.followUpNote)}` : ""}</p>
+        <small>${new Date(record.createdAt).toLocaleString()}</small>
+      </article>
+    `).join("")
+    : "<p class=\"muted\">No medical records found.</p>";
+};
+
+const setupMedicalRecords = () => {
+  const form = document.getElementById("recordForm");
+  const list = document.getElementById("recordList");
+
+  if (!form && !list) {
+    return;
+  }
+
+  if (form) {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      try {
+        await apiRequest("/medical-records", {
+          method: "POST",
+          body: JSON.stringify(recordPayload())
+        });
+        form.reset();
+        setMessage("recordMessage", "Medical record saved.");
+        await Promise.all([loadRecordAppointments(), loadMedicalRecords()]);
+      } catch (error) {
+        setMessage("recordMessage", error.message, true);
+      }
+    });
+  }
+
+  Promise.all([loadRecordAppointments(), loadMedicalRecords()])
+    .catch((error) => setMessage("recordMessage", error.message, true));
 };
 
 const accountPayload = () => {
@@ -722,5 +947,6 @@ setupLogout();
 loadDashboard();
 setupPatients();
 setupAppointments();
+setupMedicalRecords();
 setupAccounts();
 setupBillings();

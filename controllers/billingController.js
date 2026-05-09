@@ -1,5 +1,6 @@
 const Billing = require("../models/Billing");
 const Patient = require("../models/Patient");
+const { ensurePatientForUser } = require("../utils/patientAccount");
 
 const discountRates = {
   none: 0,
@@ -62,7 +63,8 @@ const resolvePatientId = async (body) => {
 
 exports.getBillings = async (req, res) => {
   try {
-    const where = req.user.role === "patient" ? { patientId: req.user.patientId } : {};
+    const patient = req.user.role === "patient" ? await ensurePatientForUser(req.user) : null;
+    const where = req.user.role === "patient" ? { patientId: patient ? patient.id : null } : {};
     const billings = await Billing.findAll({
       where,
       order: [["createdAt", "DESC"]]

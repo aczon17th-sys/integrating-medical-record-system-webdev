@@ -2,11 +2,12 @@ const Patient = require("../models/Patient");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const { Op } = require("sequelize");
+const { ensurePatientForUser } = require("../utils/patientAccount");
 
 exports.getPatients = async (req, res) => {
   try {
     if (req.user.role === "patient") {
-      const patient = await Patient.findByPk(req.user.patientId);
+      const patient = await ensurePatientForUser(req.user);
       return res.json(patient ? [patient] : []);
     }
 
@@ -38,8 +39,12 @@ exports.getPatients = async (req, res) => {
 
 exports.getPatient = async (req, res) => {
   try {
-    if (req.user.role === "patient" && Number(req.params.id) !== Number(req.user.patientId)) {
-      return res.status(403).json({ message: "You can only view your own patient record" });
+    if (req.user.role === "patient") {
+      const patient = await ensurePatientForUser(req.user);
+
+      if (!patient || Number(req.params.id) !== Number(patient.id)) {
+        return res.status(403).json({ message: "You can only view your own patient record" });
+      }
     }
 
     const patient = await Patient.findByPk(req.params.id);

@@ -34,7 +34,7 @@ A Node.js, JavaScript, Express, and MySQL system that combines patient medical r
 5. Open:
 
    ```text
-   http://localhost:3000
+  http://localhost:3000 
    ```
 
 ## Default Admin Login

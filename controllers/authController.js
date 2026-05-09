@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { ensurePatientForUser } = require("../utils/patientAccount");
 
 const createToken = (user) => {
   return jwt.sign(
@@ -53,6 +54,11 @@ exports.register = async (req, res) => {
       role: role || "staff"
     });
 
+    if (user.role === "patient") {
+      await ensurePatientForUser(user);
+      await user.reload();
+    }
+
     res.status(201).json({
       message: "User registered successfully",
       user: serializeUser(user)
@@ -86,6 +92,11 @@ exports.login = async (req, res) => {
 
     if (!validPassword) {
       return res.status(401).json({ message: "Invalid password" });
+    }
+
+    if (user.role === "patient") {
+      await ensurePatientForUser(user);
+      await user.reload();
     }
 
     res.json({

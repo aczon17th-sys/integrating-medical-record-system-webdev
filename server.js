@@ -8,6 +8,8 @@ require("./models/User");
 require("./models/Patient");
 require("./models/Appointment");
 require("./models/Billing");
+require("./models/MedicalRecord");
+require("./models/Notification");
 
 const authRoutes = require("./routes/authRoutes");
 const patientRoutes = require("./routes/patientRoutes");
@@ -15,6 +17,7 @@ const appointmentRoutes = require("./routes/appointmentRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const userRoutes = require("./routes/userRoutes");
 const billingRoutes = require("./routes/billingRoutes");
+const medicalRecordRoutes = require("./routes/medicalRecordRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const { seedDefaultUsers } = require("./seedDefaultUsers");
 
@@ -44,6 +47,7 @@ app.use("/api/patients", authMiddleware, patientRoutes);
 app.use("/api/appointments", authMiddleware, appointmentRoutes);
 app.use("/api/users", authMiddleware, userRoutes);
 app.use("/api/billings", authMiddleware, billingRoutes);
+app.use("/api/medical-records", authMiddleware, medicalRecordRoutes);
 
 app.get("/", (req, res) => {
   res.sendFile("index.html", { root: "public" });

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical Records | Medical System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="dashboard.html">Medical System</a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="patients.html">Patients</a>
+      <a href="appointments.html">Appointments</a>
+      <a href="records.html">Records</a>
+      <a href="billing.html">Billing</a>
+      <a href="accounts.html" class="admin-only">Accounts</a>
+      <button id="logoutBtn" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">Doctor</p>
+        <h1>Diagnosis and Prescription</h1>
+      </div>
+    </section>
+
+    <section class="panel doctor-only">
+      <h2>Diagnose Patient</h2>
+      <form id="recordForm" class="form-grid">
+        <label class="span-2">Approved Appointment
+          <select id="recordAppointmentId" required></select>
+        </label>
+        <label class="span-2">Diagnosis<textarea id="diagnosis" required></textarea></label>
+        <label class="span-2">Prescription medicines<textarea id="prescription" required></textarea></label>
+        <label class="span-2">Medication instructions<textarea id="recordMedications"></textarea></label>
+        <label class="span-2">Therapies<textarea id="therapies"></textarea></label>
+        <label class="checkbox span-2">
+          <input type="checkbox" id="followUpNeeded">
+          Follow-up check-up needed
+        </label>
+        <label class="span-2">Follow-up note<textarea id="followUpNote"></textarea></label>
+        <div class="actions span-2">
+          <button class="button" type="submit">Save Record</button>
+          <button class="secondary-button" type="reset">Clear</button>
+        </div>
+      </form>
+      <p id="recordMessage" class="message"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Medical Records</h2>
+      <div id="recordList" class="record-list"></div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -45,6 +45,22 @@ const Patient = sequelize.define("Patient", {
 
   medications: {
     type: DataTypes.STRING
+  },
+
+  prescription: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+
+  followUpNeeded: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+
+  followUpNote: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 });
 
