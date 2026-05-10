@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    restart: unless-stopped
     ports:
       - "5000:5000"
     environment:
@@ -12,7 +13,8 @@ services:
       DB_NAME: medical_record_system
       JWT_SECRET: change-this-jwt-secret
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:8.4
@@ -21,9 +23,15 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: medical_record_system
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
 volumes:
   mysql-data:
