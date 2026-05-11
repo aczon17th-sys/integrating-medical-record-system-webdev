@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { ensurePatientForUser } = require("../utils/patientAccount");
+const { getJwtSecret } = require("../config/jwt");
 
 const createToken = (user) => {
   return jwt.sign(
@@ -12,7 +13,7 @@ const createToken = (user) => {
       role: user.role,
       patientId: user.patientId
     },
-    process.env.JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: "1d" }
   );
 };

@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { getJwtSecret } = require("../config/jwt");
 
 module.exports = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -11,7 +12,7 @@ module.exports = (req, res, next) => {
   }
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = jwt.verify(token, getJwtSecret());
     next();
   } catch (error) {
     res.status(401).json({ message: "Invalid token" });

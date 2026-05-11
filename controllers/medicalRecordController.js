@@ -7,6 +7,17 @@ const { ensurePatientForUser } = require("../utils/patientAccount");
 
 const doctorDisplayName = (doctor) => doctor.username || doctor.email || `Doctor ${doctor.id}`;
 
+const resolveDoctor = async (req, doctorId) => {
+  const id = req.user.role === "doctor" ? req.user.id : doctorId;
+
+  if (!id) {
+    return null;
+  }
+
+  const doctor = await User.findByPk(id);
+  return doctor && doctor.role === "doctor" ? doctor : null;
+};
+
 exports.getMedicalRecords = async (req, res) => {
   try {
     const where = {};
@@ -49,7 +60,7 @@ exports.createMedicalRecord = async (req, res) => {
       return res.status(400).json({ message: "Only approved appointments can receive a diagnosis" });
     }
 
-    const doctor = await User.findByPk(req.user.id);
+    const doctor = await resolveDoctor(req, req.body.doctorId);
     const patient = await Patient.findByPk(appointment.patientId);
 
     if (!doctor || !patient) {
@@ -100,5 +111,78 @@ exports.createMedicalRecord = async (req, res) => {
     res.status(201).json(record);
   } catch (error) {
     res.status(400).json({ message: "Failed to save medical record", error: error.message });
+  }
+};
+
+exports.updateMedicalRecord = async (req, res) => {
+  try {
+    const record = await MedicalRecord.findByPk(req.params.id);
+
+    if (!record) {
+      return res.status(404).json({ message: "Medical record not found" });
+    }
+
+    if (req.user.role === "doctor" && Number(record.doctorId) !== Number(req.user.id)) {
+      return res.status(403).json({ message: "You can only update your own medical records" });
+    }
+
+    const doctor = req.body.doctorId ? await resolveDoctor(req, req.body.doctorId) : null;
+    const patient = req.body.patientId ? await Patient.findByPk(req.body.patientId) : null;
+    const appointment = req.body.appointmentId ? await Appointment.findByPk(req.body.appointmentId) : null;
+
+    if (req.body.doctorId && !doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    if (req.body.patientId && !patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    if (req.body.appointmentId && !appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    const updates = {};
+    const allowedFields = ["diagnosis", "prescription", "therapies", "medications", "followUpNeeded", "followUpNote"];
+
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+
+    if (doctor) {
+      updates.doctorId = doctor.id;
+      updates.doctorName = doctorDisplayName(doctor);
+    }
+
+    if (patient) {
+      updates.patientId = patient.id;
+      updates.patientName = patient.fullname;
+    }
+
+    if (appointment) {
+      updates.appointmentId = appointment.id;
+    }
+
+    await record.update(updates);
+    res.json(record);
+  } catch (error) {
+    res.status(400).json({ message: "Failed to update medical record", error: error.message });
+  }
+};
+
+exports.deleteMedicalRecord = async (req, res) => {
+  try {
+    const record = await MedicalRecord.findByPk(req.params.id);
+
+    if (!record) {
+      return res.status(404).json({ message: "Medical record not found" });
+    }
+
+    await record.destroy();
+    res.json({ message: "Medical record deleted" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete medical record", error: error.message });
   }
 };

@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const sequelize = require("./config/db");
+const { getJwtSecret } = require("./config/jwt");
 
 require("./models/User");
 require("./models/Patient");
@@ -22,6 +23,7 @@ const authMiddleware = require("./middleware/authMiddleware");
 const { seedDefaultUsers } = require("./seedDefaultUsers");
 
 const app = express();
+getJwtSecret();
 
 app.use(cors());
 app.use(express.json());
