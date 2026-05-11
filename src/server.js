@@ -21,7 +21,15 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.get('/index.html', (req, res) => res.redirect('/'));
+app.get('/login.html', (req, res) => res.redirect('/login'));
+app.get('/dashboard.html', (req, res) => res.redirect('/dashboard'));
+app.get('/accounts.html', (req, res) => res.redirect('/admin/users'));
+app.get('/patients.html', (req, res) => res.redirect('/admin/patients'));
+app.get('/appointments.html', (req, res) => res.redirect('/admin/appointments'));
+app.get('/diagnosis.html', (req, res) => res.redirect('/admin/records'));
+app.get('/billing.html', (req, res) => res.redirect('/staff/billings'));
+app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
