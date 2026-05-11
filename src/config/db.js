@@ -1,10 +1,14 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
+const { getMysqlSslOptions } = require('../../config/mysqlSsl');
+
+const ssl = getMysqlSslOptions();
 
 const pool = mysql.createPool(
   process.env.DATABASE_URL
     ? {
         uri: process.env.DATABASE_URL,
+        ssl,
         waitForConnections: true,
         connectionLimit: 10
       }
@@ -14,6 +18,7 @@ const pool = mysql.createPool(
         user: process.env.DB_USER || 'root',
         password: process.env.DB_PASSWORD || '',
         database: process.env.DB_NAME || 'medical_record_system',
+        ssl,
         waitForConnections: true,
         connectionLimit: 10
       }

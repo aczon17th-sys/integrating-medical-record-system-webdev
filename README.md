@@ -44,21 +44,34 @@ A Node.js, JavaScript, Express, and MySQL system that combines patient medical r
 
 Change this password after first login.
 
-## Deploying to GitHub and Render
+## Deploying to GitHub and Render with Aiven MySQL
 
 1. Push this folder to GitHub.
-2. Create a MySQL database using a hosted provider such as PlanetScale, Railway, Aiven, or another MySQL-compatible service.
-3. Run `database/schema.sql` on that hosted database.
-4. In Render, create a new Web Service from the GitHub repository.
-5. Set environment variables:
+2. Create an Aiven MySQL service.
+3. In Aiven, open the MySQL service overview and copy the host, port, username, password, database name, and CA certificate.
+4. Run `database/schema.sql` on the Aiven database:
+
+   ```bash
+   mysql --ssl-mode=REQUIRED -h your-aiven-host.aivencloud.com -P 12345 -u avnadmin -p defaultdb < database/schema.sql
+   ```
+
+   Replace the host, port, user, and database with your Aiven values.
+
+5. In Render, create a new Web Service from the GitHub repository.
+6. Set environment variables:
 
    ```text
-   DATABASE_URL=mysql://user:password@host:3306/database
+   DATABASE_URL=mysql://avnadmin:your-password@your-aiven-host.aivencloud.com:12345/defaultdb
+   DB_SSL=true
+   DB_SSL_CA=your-aiven-ca-certificate
    SESSION_SECRET=your-secure-secret
+   JWT_SECRET=your-secure-jwt-secret
    NODE_ENV=production
    ```
 
-6. Render will use:
+   You may set `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` instead of `DATABASE_URL`.
+
+7. Render will use:
 
    ```text
    Build Command: npm install

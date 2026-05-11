@@ -1,9 +1,13 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
+const { getMysqlSslOptions } = require("./mysqlSsl");
+
+const ssl = getMysqlSslOptions();
 
 const commonOptions = {
   dialect: "mysql",
-  logging: false
+  logging: false,
+  dialectOptions: ssl ? { ssl } : undefined
 };
 
 const sequelize = process.env.DATABASE_URL
@@ -15,7 +19,7 @@ const sequelize = process.env.DATABASE_URL
       {
         ...commonOptions,
         host: process.env.DB_HOST,
-        port: process.env.DB_PORT || 3306
+        port: Number(process.env.DB_PORT || 3306)
       }
     );
 
