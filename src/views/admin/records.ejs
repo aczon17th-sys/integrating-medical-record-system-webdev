@@ -1,0 +1,43 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Admin CRUD</p>
+    <h1>Manage Medical Records</h1>
+  </div>
+  <a class="button" href="/admin/records/new">Create record</a>
+</section>
+
+<section class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Appointment</th>
+          <th>Findings</th>
+          <th>Prescription</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% records.forEach(record => { %>
+          <tr>
+            <td><%= record.patient_first %> <%= record.patient_last %></td>
+            <td>Dr. <%= record.doctor_first %> <%= record.doctor_last %></td>
+            <td><%= record.scheduled_at ? record.scheduled_at.toLocaleString() : '-' %></td>
+            <td><%= record.findings %></td>
+            <td><%= record.prescription %></td>
+            <td class="actions">
+              <a class="small-button" href="/admin/records/<%= record.id %>/edit">Edit</a>
+              <form action="/admin/records/<%= record.id %>?_method=DELETE" method="post">
+                <button class="danger-button" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('../partials/footer') %>

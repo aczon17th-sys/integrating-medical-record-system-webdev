@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+<section class="panel narrow">
+  <h1><%= title %></h1>
+  <form class="form-grid" action="<%= action %>" method="post">
+    <label>Patient
+      <select name="patient_id" required>
+        <% patients.forEach(patient => { %>
+          <option value="<%= patient.id %>" <%= appointment && appointment.patient_id === patient.id ? 'selected' : '' %>>
+            <%= patient.last_name %>, <%= patient.first_name %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Doctor
+      <select name="doctor_id">
+        <option value="">Unassigned</option>
+        <% doctors.forEach(doctor => { %>
+          <option value="<%= doctor.id %>" <%= appointment && appointment.doctor_id === doctor.id ? 'selected' : '' %>>
+            Dr. <%= doctor.last_name %>, <%= doctor.first_name %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Date and time
+      <input type="datetime-local" name="scheduled_at" required value="<%= appointment ? formatDateTimeForInput(appointment.scheduled_at) : '' %>">
+    </label>
+    <label>Status
+      <select name="status">
+        <% statuses.forEach(status => { %>
+          <option value="<%= status %>" <%= appointment && appointment.status === status ? 'selected' : '' %>><%= status %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label class="span-2">Reason
+      <textarea name="reason"><%= appointment && appointment.reason ? appointment.reason : '' %></textarea>
+    </label>
+    <button class="button" type="submit">Save appointment</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

@@ -1,0 +1,42 @@
+<%- include('../partials/header') %>
+<section class="panel narrow">
+  <h1><%= title %></h1>
+  <form class="form-grid" action="<%= action %>" method="post">
+    <label>Patient
+      <select name="patient_id" required>
+        <% patients.forEach(patient => { %>
+          <option value="<%= patient.id %>" <%= record && record.patient_id === patient.id ? 'selected' : '' %>>
+            <%= patient.last_name %>, <%= patient.first_name %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Doctor
+      <select name="doctor_id" required>
+        <% doctors.forEach(doctor => { %>
+          <option value="<%= doctor.id %>" <%= record && record.doctor_id === doctor.id ? 'selected' : '' %>>
+            Dr. <%= doctor.last_name %>, <%= doctor.first_name %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+    <label class="span-2">Appointment
+      <select name="appointment_id">
+        <option value="">No linked appointment</option>
+        <% appointments.forEach(appointment => { %>
+          <option value="<%= appointment.id %>" <%= record && record.appointment_id === appointment.id ? 'selected' : '' %>>
+            #<%= appointment.id %> - <%= appointment.patient_first %> <%= appointment.patient_last %> - <%= appointment.scheduled_at.toLocaleString() %>
+          </option>
+        <% }) %>
+      </select>
+    </label>
+    <label class="span-2">Findings
+      <textarea name="findings" required><%= record && record.findings ? record.findings : '' %></textarea>
+    </label>
+    <label class="span-2">Prescription
+      <textarea name="prescription" required><%= record && record.prescription ? record.prescription : '' %></textarea>
+    </label>
+    <button class="button" type="submit">Save record</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

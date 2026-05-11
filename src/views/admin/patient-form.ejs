@@ -1,0 +1,35 @@
+<%- include('../partials/header') %>
+<section class="panel narrow">
+  <h1><%= title %></h1>
+  <form class="form-grid" action="<%= action %>" method="post">
+    <label>First name
+      <input name="first_name" required value="<%= patient ? patient.first_name : '' %>">
+    </label>
+    <label>Last name
+      <input name="last_name" required value="<%= patient ? patient.last_name : '' %>">
+    </label>
+    <label>Email
+      <input type="email" name="email" required value="<%= patient ? patient.email : '' %>">
+    </label>
+    <label>Password
+      <input type="password" name="password" <%= patient ? '' : 'required' %>>
+    </label>
+    <label>Phone
+      <input name="phone" value="<%= patient && patient.phone ? patient.phone : '' %>">
+    </label>
+    <label>Date of birth
+      <input type="date" name="date_of_birth" value="<%= patient ? formatDateForInput(patient.date_of_birth) : '' %>">
+    </label>
+    <label>Gender
+      <input name="gender" value="<%= patient && patient.gender ? patient.gender : '' %>">
+    </label>
+    <label class="span-2">Address
+      <textarea name="address"><%= patient && patient.address ? patient.address : '' %></textarea>
+    </label>
+    <% if (patient) { %>
+      <label class="checkbox"><input type="checkbox" name="is_active" <%= patient.is_active ? 'checked' : '' %>> Active</label>
+    <% } %>
+    <button class="button" type="submit">Save patient</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

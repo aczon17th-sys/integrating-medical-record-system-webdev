@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Admin CRUD</p>
+    <h1>Manage Patients</h1>
+  </div>
+  <a class="button" href="/admin/patients/new">Create patient</a>
+</section>
+
+<section class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Appointments</th>
+          <th>Records</th>
+          <th>Latest Appointment</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% patients.forEach(patient => { %>
+          <tr>
+            <td><%= patient.first_name %> <%= patient.last_name %></td>
+            <td><%= patient.email %></td>
+            <td><%= patient.phone || '-' %></td>
+            <td><%= patient.appointment_count %></td>
+            <td><%= patient.record_count %></td>
+            <td><%= patient.latest_appointment ? patient.latest_appointment.toLocaleString() : '-' %></td>
+            <td><%= patient.is_active ? 'Active' : 'Inactive' %></td>
+            <td class="actions">
+              <a class="small-button" href="/admin/patients/<%= patient.id %>/edit">Edit</a>
+              <form action="/admin/patients/<%= patient.id %>?_method=DELETE" method="post">
+                <button class="danger-button" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('../partials/footer') %>

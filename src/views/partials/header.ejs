@@ -14,8 +14,9 @@
           <a href="/dashboard">Dashboard</a>
           <% if (currentUser.role === 'admin') { %>
             <a href="/admin/users">Users</a>
-            <a href="/staff/patients">Patients</a>
-            <a href="/staff/appointments">Appointments</a>
+            <a href="/admin/patients">Patients</a>
+            <a href="/admin/appointments">Appointments</a>
+            <a href="/admin/records">Records</a>
             <a href="/staff/billings">Billings</a>
           <% } %>
           <% if (currentUser.role === 'nurse' || currentUser.role === 'receptionist') { %>

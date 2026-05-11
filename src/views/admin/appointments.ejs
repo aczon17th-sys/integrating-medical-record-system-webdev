@@ -1,0 +1,43 @@
+<%- include('../partials/header') %>
+<section class="page-heading">
+  <div>
+    <p class="eyebrow">Admin CRUD</p>
+    <h1>Manage Appointments</h1>
+  </div>
+  <a class="button" href="/admin/appointments/new">Create appointment</a>
+</section>
+
+<section class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Schedule</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% appointments.forEach(item => { %>
+          <tr>
+            <td><%= item.patient_first %> <%= item.patient_last %></td>
+            <td><%= item.doctor_first ? `Dr. ${item.doctor_first} ${item.doctor_last}` : 'Unassigned' %></td>
+            <td><%= item.scheduled_at.toLocaleString() %></td>
+            <td><%= item.reason || '-' %></td>
+            <td><span class="badge"><%= item.status %></span></td>
+            <td class="actions">
+              <a class="small-button" href="/admin/appointments/<%= item.id %>/edit">Edit</a>
+              <form action="/admin/appointments/<%= item.id %>?_method=DELETE" method="post">
+                <button class="danger-button" type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('../partials/footer') %>
