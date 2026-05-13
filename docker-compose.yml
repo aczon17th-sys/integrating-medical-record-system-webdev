@@ -11,7 +11,7 @@ services:
       DB_USER: root
       DB_PASSWORD: password
       DB_NAME: medical_record_system
-      JWT_SECRET: change-this-jwt-secret
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env or in your shell before running docker compose}
     depends_on:
       db:
         condition: service_healthy

@@ -1,5 +1,5 @@
 const { Sequelize } = require("sequelize");
-require("dotenv").config();
+require("./env");
 const { getMysqlSslOptions } = require("./mysqlSsl");
 
 const ssl = getMysqlSslOptions();

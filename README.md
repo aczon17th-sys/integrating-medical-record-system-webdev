@@ -19,19 +19,45 @@ A Node.js, JavaScript, Express, and MySQL system that combines patient medical r
 
 2. Copy `.env.example` to `.env` and update the database credentials.
 
-3. Run the app:
+3. Generate a JWT secret and put it in `.env`:
+
+   ```bash
+   npm run generate:jwt-secret
+   ```
+
+   Your `.env` must contain:
+
+   ```text
+   JWT_SECRET=the-generated-value
+   ```
+
+4. Run the app:
 
    ```bash
    npm run dev
    ```
 
-4. Open:
+5. Open:
 
    ```text
    http://localhost:3000
    ```
 
 The app uses JWT authentication for the frontend API flow. Sequelize creates and updates the MySQL tables on startup.
+
+## Docker
+
+The Docker image does not copy `.env`, so pass `JWT_SECRET` at runtime. With Docker Compose, keep `JWT_SECRET` in your project `.env`, then run:
+
+```bash
+docker compose up --build
+```
+
+For plain Docker, pass the variable explicitly:
+
+```bash
+docker run -p 5000:5000 --env JWT_SECRET=your-generated-secret medical-record-appointment-system
+```
 
 ## Default Demo Logins
 

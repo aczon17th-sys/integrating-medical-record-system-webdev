@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+require("./config/env");
 
 const sequelize = require("./config/db");
 const { getJwtSecret } = require("./config/jwt");
