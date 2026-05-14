@@ -1,12 +1,18 @@
+require('dotenv').config();
+
 const express = require('express');
 const { Sequelize } = require('sequelize');
+const path = require('path');
 
 const app = express();
+
+// Serve frontend files
+app.use(express.static(path.join(__dirname, 'public')));
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
-  process.env.DB_PASS, // make sure this matches your .env
+  process.env.DB_PASS,
   {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -37,9 +43,8 @@ async function startServer() {
 
   } catch (error) {
     console.error('❌ DB connection failed:', error);
-    process.exit(1); // force crash so Render shows error
+    process.exit(1);
   }
 }
 
-// ✅ THIS WAS MISSING
 startServer();
