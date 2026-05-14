@@ -40,6 +40,8 @@ const User = sequelize.define("User", {
     type: DataTypes.INTEGER,
     allowNull: true
   }
+}, {
+  tableName: "users"
 });
 
 module.exports = User;
