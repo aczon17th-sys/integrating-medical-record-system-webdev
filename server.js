@@ -29,20 +29,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-sequelize
-  .authenticate()
-  .then(() => console.log("MySQL Connected"))
-  .catch((err) => console.log(err));
-
-sequelize
-  .sync({ alter: true })
-  .then(async () => {
-    console.log("Tables Synced");
-    await seedDefaultUsers();
-    console.log("Default accounts ready");
-  })
-  .catch((err) => console.log(err));
-
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", authMiddleware, dashboardRoutes);
 app.use("/api/patients", authMiddleware, patientRoutes);
@@ -57,6 +43,24 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("MySQL Connected");
+
+    await sequelize.sync({ alter: true });
+    console.log("Tables Synced");
+
+    await seedDefaultUsers();
+    console.log("Default accounts ready");
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Server startup failed:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
